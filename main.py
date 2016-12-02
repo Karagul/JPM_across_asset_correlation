@@ -15,9 +15,8 @@ def get_etf(stocklist,column_name):
     end = datetime(2016,12,1)
     p = wb.DataReader(stocklist,'yahoo',start,end)
     return_df = p['Adj Close']
-    return_df.columns = column_name
-    corr_df = return_df.corr()    
-    return return_df,corr_df
+    return_df.columns = column_name  
+    return return_df
 
 
 def get_libor():
@@ -38,6 +37,8 @@ if __name__ == '__main__':
     column_name = ['USD/JPY','GBP/USD','EUR/USD','AUD/USD','S&P','NIKKEI',\
                    'DAX','RUSSELL','DOW','EURO_50','NASDAQ','GOLD','SILVER',\
                    'OIL','GAS','COPPER','WEAT','CORN','20yr_Bond','7_10_yr_Bond']
-    return_df,corr_df = get_etf(stocklist,column_name)
-
-    data = get_libor()
+    return_df = pd.concat([get_etf(stocklist,column_name),get_libor()],axis=1)
+    corr_df = return_df.corr()
+    
+    
+    
