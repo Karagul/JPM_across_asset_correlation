@@ -7,14 +7,37 @@ Created on Fri Dec  2 09:41:37 2016
 
 from datetime import datetime
 import pandas_datareader.data as wb
+from fredapi import Fred
+import pandas as pd
+
+def get_etf(stocklist,column_name):
+    start = datetime(2011,9,19)
+    end = datetime(2016,12,1)
+    p = wb.DataReader(stocklist,'yahoo',start,end)
+    return_df = p['Adj Close']
+    return_df.columns = column_name
+    corr_df = return_df.corr()    
+    return return_df,corr_df
 
 
-stocklist = ['FXF','FXB','FXE','FXA','SPY','EWJ','EWG','IWV','IYY','FEZ','ONEQ','GLD','SLV','OIL','UNL','JJC','WEAT','CORN','TLT','IEF']
+def get_libor():
+    fred = Fred(api_key='a0718ea00e6784c5f8b452741622a98c')
+    Libor_3M = pd.DataFrame(fred.get_series('USD3MTD156N',observation_start='9/19/2011'))
+    Libor_1Y = pd.DataFrame(fred.get_series('DSWP1',observation_start='9/19/2011'))
+    Libor_5Y = pd.DataFrame(fred.get_series('DSWP5',observation_start='9/19/2011'))
+    Libor_10Y = pd.DataFrame(fred.get_series('DSWP10',observation_start='9/19/2011'))
+    data = pd.concat([Libor_3M,Libor_1Y,Libor_5Y,Libor_10Y],axis=1)
+    data.columns=['Libor_3M','Libor_1Y','Libor_5Y','Libor_10Y']
+    return data
+    
 
-start = datetime(2011,9,19)
-end = datetime(2016,12,1)
-p = wb.DataReader(stocklist,'yahoo',start,end)
-return_df = p['Adj Close']
-return_df.columns = ['USD/JPY','GBP/USD','EUR/USD','AUD/USD','S&P','NIKKEI','DAX','RUSSELL','DOW','EURO_50','NASDAQ','GOLD','SILVER','OIL','GAS','COPPER','WEAT','CORN','20yr_Bond','7_10_yr_Bond']
-corr_df = return_df.corr()
+if __name__ == '__main__':
+    
+    stocklist = ['FXF','FXB','FXE','FXA','SPY','EWJ','EWG','IWV','IYY','FEZ','ONEQ',\
+                 'GLD','SLV','OIL','UNL','JJC','WEAT','CORN','TLT','IEF']   
+    column_name = ['USD/JPY','GBP/USD','EUR/USD','AUD/USD','S&P','NIKKEI',\
+                   'DAX','RUSSELL','DOW','EURO_50','NASDAQ','GOLD','SILVER',\
+                   'OIL','GAS','COPPER','WEAT','CORN','20yr_Bond','7_10_yr_Bond']
+    return_df,corr_df = get_etf(stocklist,column_name)
 
+    data = get_libor()
