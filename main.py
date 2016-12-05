@@ -10,12 +10,11 @@ import pandas_datareader.data as wb
 from fredapi import Fred
 import pandas as pd
 
-def get_etf(stocklist,column_name):
+def get_etf(stocklist):
     start = datetime(2011,9,19)
     end = datetime(2016,12,1)
     p = wb.DataReader(stocklist,'yahoo',start,end)
     return_df = p['Adj Close']
-    return_df.columns = column_name  
     return return_df
 
 
@@ -45,12 +44,17 @@ def get_libor():
 
 if __name__ == '__main__':
     
-    stocklist = ['FXF','FXB','FXE','FXA','SPY','EWJ','EWG','IWV','IYY','FEZ','ONEQ',\
-                 'GLD','SLV','OIL','UNL','JJC','WEAT','CORN','TLT','IEF']   
-    column_name = ['USD/JPY','GBP/USD','EUR/USD','AUD/USD','S&P','NIKKEI',\
-                   'DAX','RUSSELL','DOW','EURO_50','NASDAQ','GOLD','SILVER',\
-                   'OIL','GAS','COPPER','WEAT','CORN','20yr_Bond','7_10_yr_Bond']
-    etf = get_etf(stocklist,column_name)
+    stocklist = ['FXY','FXB','FXE','FXA','SPY','EWJ','EWG','IWV','IYY','FEZ','ONEQ',\
+                 'GLD','SLV','OIL','UNL','JJC','WEAT','CORN','TLT','IEF']  
+    etf = get_etf(stocklist)
+    d = {'FXY':'USD/JPY','FXB':'GBP/USD','FXE':'EUR/USD','FXA':'AUD/USD',\
+         'SPY':'S&P','EWJ':'NIKKEI','EWG':'DAX','IWV':'RUSSELL','IYY':'DOW',\
+         'FEZ':'EURO_50','ONEQ':'NASDAQ','GLD':'GOLD','SLV':'SILVER','OIL':'OIL',\
+         'UNL':'GAS','JJC':'COPPER','WEAT':'WEAT','CORN':'CORN','TLT':'20yr_Bond','IEF':'7_10_yr_Bond'}
+    l = []
+    for i in etf.columns:
+        l.append(d[i])
+    etf.columns = l
     Fed_Rate,macro_m,macro_d = get_libor()
 
     
