@@ -11,6 +11,9 @@ from fredapi import Fred
 import pandas as pd
 import numpy as np
 from itertools import groupby
+from urllib.request import urlopen
+import json
+import matplotlib.pyplot as plt
 
 def get_value(tickerlist):
     start = datetime(2000,1,1)
@@ -31,6 +34,7 @@ def get_libor():
     Treasury_20Y = pd.DataFrame(fred.get_series('DGS20',observation_start='1/1/2000'))
     Treasury_30Y = pd.DataFrame(fred.get_series('DGS30',observation_start='1/1/2000'))
     WILLREITIND = pd.DataFrame(fred.get_series('WILLREITIND',observation_start='1/1/2000'))
+    OAS = pd.DataFrame(fred.get_series('BAMLH0A0HYM2',observation_start='1/1/2000'))
     
     
     GDP = pd.DataFrame(fred.get_series('GDPC1',observation_start='9/19/2011'))
@@ -45,9 +49,9 @@ def get_libor():
 
     
     macro_m = pd.concat([GDP,CPI,Uneply,M2,Non_farm,Fed_Debt,Dollar_Index,HOUST],axis=1)
-    macro_d = pd.concat([Libor_1M,Libor_3M,Treasury_1Y,Treasury_5Y,Treasury_10Y,Treasury_20Y,Treasury_30Y,WILLREITIND],axis=1)
+    macro_d = pd.concat([Libor_1M,Libor_3M,Treasury_1Y,Treasury_5Y,Treasury_10Y,Treasury_20Y,Treasury_30Y,WILLREITIND,OAS],axis=1)
     macro_m.columns=['GDP','CPI','Uneply','M2','Non_farm','Fed_Debt','Dollar_index','HOUST']
-    macro_d.columns = ['Libor_1M','Libor_3M','Treasury_1Y','Treasury_5Y','Treasury_10Y','Treasury_20Y','Treasury_30Y','WILLREITIND']
+    macro_d.columns = ['Libor_1M','Libor_3M','Treasury_1Y','Treasury_5Y','Treasury_10Y','Treasury_20Y','Treasury_30Y','WILLREITIND','OAS']
     return Fed_Rate,macro_m,macro_d
     
 def add_column_name(dataframe):
@@ -62,16 +66,17 @@ def add_column_name(dataframe):
 if __name__ == '__main__':
     
     equity_etf_list = ['SPY','EWJ','EWG','IWV','IYY','FEZ','ONEQ','TLT','IEF']
-    equity_index_list = ['^GSPC','^N225','^SSEC','^FTSE','^HSI','^BVSP','^AORD','^GDAXI','^STOXX50E','^BSESN']
-    currency_list = ['FXY','FXB','FXE','FXA']
+    equity_index_list = ['^GSPC','^N225','^SSEC','^FTSE','^HSI','^BVSP','^AORD','^GDAXI','^STOXX50E','^BSESN','^VIX']
+    currency_list = ['FXY','FXB','FXE','FXA','FXF']
     commodity_etf_list = ['GLD','SLV','OIL','UNL','JJC','WEAT','CORN']
     
-    ticker_dict = {'FXY':'USD/JPY','FXB':'GBP/USD','FXE':'EUR/USD','FXA':'AUD/USD',\
+    ticker_dict = {'FXY':'JPY/USD','FXB':'GBP/USD','FXE':'EUR/USD','FXA':'AUD/USD','FXF':'CHF/USD',\
         'SPY':'S&P_ETF','EWJ':'NIKKEI_ETF','EWG':'DAX_ETF','IWV':'RUSSELL_ETF','IYY':'DOW_ETF',\
          'FEZ':'EURO_50_ETF','ONEQ':'NASDAQ_ETF','GLD':'GOLD','SLV':'SILVER','OIL':'OIL',\
          'UNL':'GAS','JJC':'COPPER','WEAT':'WEAT','CORN':'CORN','TLT':'20yr_Bond','IEF':'7_10_yr_Bond',\
          '^GSPC':'S&P500','^N225':'Nikki_225','^SSEC':'SSE_Composite','^FTSE':'FTSE_100','^HSI':'HANG_SENG_INDEX',\
-         '^BVSP':'IBOVESPA','^AORD':'ALL_ORDINARIES','^GDAXI':'DAX','^STOXX50E':'ESTX50','^BSESN':'S&P_BSE_SENSEX'}
+         '^BVSP':'IBOVESPA','^AORD':'ALL_ORDINARIES','^GDAXI':'DAX','^STOXX50E':'ESTX50','^BSESN':'S&P_BSE_SENSEX',\
+         '^VIX':'VIX'}
          
     ###### Equity ETF ######
     equity_etf = get_value(equity_etf_list)
@@ -113,7 +118,7 @@ if __name__ == '__main__':
     # deal with nan data
     currency_sp = currency_sp.interpolate()
     currency_sp_avg_corr = currency_sp.rolling(window=260).corr(currency_sp['S&P500']).ix[260:,[\
-                        'AUD/USD','GBP/USD','EUR/USD','USD/JPY']].mean(axis=1)
+                        'AUD/USD','GBP/USD','EUR/USD','JPY/USD','CHF/USD']].mean(axis=1)
     currency_sp_avg_corr.plot()
     
     ### Figure 6 Correlation of 10Y Treasury Yield and S&P 500
@@ -127,3 +132,26 @@ if __name__ == '__main__':
     comm_sp = comm_sp.interpolate()
     comm_sp_corr = comm_sp.rolling(window=260).corr(comm_sp['S&P500']).ix[260:,['CORN','GOLD','COPPER','OIL','SILVER','GAS','WEAT']]
     comm_sp_corr.plot()
+    
+    ### Figure 8 Average Correlation with all Commodities
+    comm_corr = commodity_etf.rolling(window=260).corr()
+    mask = np.ones(comm_corr.iloc[0].shape,dtype='bool')
+    mask[np.triu_indices(len(comm_corr.iloc[0]))] = False
+    comm_avg_corr_l = []
+    for i in range(len(comm_corr)):
+        comm_avg_corr_l.append(comm_corr.iloc[i][(comm_corr.iloc[i]>-2)&mask].sum().sum()/21)
+    comm_avg_corr = pd.DataFrame(comm_avg_corr_l, index=commodity_etf.index, columns=['Average_Correlation'])
+    
+    ### Figure 9 Cumulative Return of Commodities
+    past_commodity_etf = commodity_etf.shift(1)
+    cum_commodity_etf = (1+(commodity_etf-past_commodity_etf)/past_commodity_etf).cumprod()
+    cum_commodity_etf.loc[:,['CORN','GOLD','COPPER','OIL','SILVER','GAS','WEAT']].plot()
+    
+    ### Figure 10 Correlation of OAS and S&P500
+    oas_sp = pd.concat([-equity_index['S&P500'],equity_index['VIX'],macro_d['OAS']],axis=1)
+    oas_sp = oas_sp.interpolate()
+    oas_sp_corr = oas_sp.rolling(window=260).corr(oas_sp['OAS']).ix[260:,['S&P500','VIX']]
+    oas_sp_corr.plot()
+    
+    ### Figure 11
+    
