@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import plotly.plotly as py
 import plotly.graph_objs as go
 
-def get_value(tickerlist):
+def get_return(tickerlist):
     start = datetime(2000,1,1)
     end = datetime(2016,12,19)
     p = wb.DataReader(tickerlist,'yahoo',start,end)
@@ -26,6 +26,16 @@ def get_value(tickerlist):
     past_price_df = price_df.shift(1)
     return_df = (price_df - past_price_df)/past_price_df
     return return_df
+    
+    
+def get_price(tickerlist):
+    start = datetime(2000,1,1)
+    end = datetime(2016,12,19)
+    p = wb.DataReader(tickerlist,'yahoo',start,end)
+    price_df = p['Adj Close']
+    price_df = price_df.interpolate()
+
+    return price_df    
 
 
 def get_libor():
@@ -89,32 +99,129 @@ if __name__ == '__main__':
          '^GSPC':'S&P500','^N225':'Nikki_225','^SSEC':'SSE_Composite','^FTSE':'FTSE_100','^HSI':'HANG_SENG_INDEX',\
          '^BVSP':'IBOVESPA','^AORD':'ALL_ORDINARIES','^GDAXI':'DAX','^STOXX50E':'ESTX50','^BSESN':'S&P_BSE_SENSEX',\
          '^VIX':'VIX','XLY':'Consumer Discretionary','XLP':'Consumer Staples','XLE':'Energy','XLF':'Financials',\
-         'XLV':'Health Care','XLI':'Industrials','XLB':'Materials','XLRE':'Real Estate','XLK':'Technology','XLU':'Utilites'}
+         'XLV':'Health Care','XLI':'Industrials','XLB':'Materials','XLRE':'Real Estate','XLK':'Technology','XLU':'Utilities'}
          
     ###### Equity ETF ######
-    equity_etf = get_value(equity_etf_list)
+    equity_etf = get_return(equity_etf_list)
     equity_etf = add_column_name(equity_etf)
     ###### Equity Index ######
-    equity_index = get_value(equity_index_list)
+    equity_index = get_return(equity_index_list)  
     equity_index = add_column_name(equity_index)
     ###### Currency ######
-    currency = get_value(currency_list)
+    currency = get_return(currency_list)    
     currency = add_column_name(currency)
     ###### Currency ######
-    commodity_etf = get_value(commodity_etf_list)
+    commodity_etf = get_return(commodity_etf_list)
     commodity_etf = add_column_name(commodity_etf)
     ###### Equity(SP500) Sector ######
-    equity_sector = get_value(equity_sector_list)
+    equity_sector = get_return(equity_sector_list)
     equity_sector = add_column_name(equity_sector)
     
     Fed_Rate,macro_m_price,macro_m,macro_d_price,macro_d = get_libor()
 
     # Plotly
-    color1 = '#9467bd'
-    color2 = '#F08B00'
+    color1 = 'b'
+    color2 = 'b'
         
+    
+    
+    ### Figure 1 Developed Equity Market Cummulative return
+    cum_equity_index = (1+equity_index).cumprod()
+    cum_DM_equity_index = cum_equity_index.loc[:,['ALL_ORDINARIES','FTSE_100','DAX','S&P500','Nikki_225','ESTX50']]
+    
+    trace1 = go.Scatter(
+        x=cum_DM_equity_index.index,
+        y=cum_DM_equity_index['ALL_ORDINARIES'],
+        name='ALL_ORDINARIES'
+    )
+    trace2 = go.Scatter(
+        x=cum_DM_equity_index.index,
+        y=cum_DM_equity_index['FTSE_100'],
+        name='FTSE_100'
+    )
+    trace3 = go.Scatter(
+        x=cum_DM_equity_index.index,
+        y=cum_DM_equity_index['DAX'],
+        name='DAX'
+    )
+    trace4 = go.Scatter(
+        x=cum_DM_equity_index.index,
+        y=cum_DM_equity_index['S&P500'],
+        name='S&P500'
+    )
+    trace5 = go.Scatter(
+        x=cum_DM_equity_index.index,
+        y=cum_DM_equity_index['Nikki_225'],
+        name='Nikki_225'
+    )
+    trace6 = go.Scatter(
+        x=cum_DM_equity_index.index,
+        y=cum_DM_equity_index['ESTX50'],
+        name='ESTX50'
+    )
 
-    ### Figure 1 S&P500 with top 10 major equity index 12 month rolling
+    data = [trace1,trace2,trace3,trace4,trace5,trace6]
+    layout = go.Layout(
+        title='Cumulative Return of Developed Market Equity Indices',
+        yaxis=dict(
+            title='Cumulative Return',
+            titlefont=dict(
+                color=color1),
+            tickfont=dict(
+                color=color1)
+        )
+
+    )
+            
+    fig_1 = go.Figure(data=data, layout=layout)
+    plot_url_1 = py.plot(fig_1, filename='Figure 1 Cumulative Return of Developed Market Equity Indices', sharing='public')
+    
+    
+    
+
+    
+    ### Figure 2 Developing Equity Market Cummulative return
+    cum_EM_equity_index = cum_equity_index.loc[:,['IBOVESPA','S&P_BSE_SENSEX','HANG_SENG_INDEX','SSE_Composite']]
+    
+    trace1 = go.Scatter(
+        x=cum_EM_equity_index.index,
+        y=cum_EM_equity_index['IBOVESPA'],
+        name='IBOVESPA'
+    )
+    trace2 = go.Scatter(
+        x=cum_EM_equity_index.index,
+        y=cum_EM_equity_index['S&P_BSE_SENSEX'],
+        name='P_BSE_SENSEX'
+    )
+    trace3 = go.Scatter(
+        x=cum_EM_equity_index.index,
+        y=cum_EM_equity_index['HANG_SENG_INDEX'],
+        name='HANG_SENG_INDEX'
+    )
+    trace4 = go.Scatter(
+        x=cum_EM_equity_index.index,
+        y=cum_EM_equity_index['SSE_Composite'],
+        name='S&SSE_Composite'
+    )
+
+    data = [trace1,trace2,trace3,trace4,trace5,trace6]
+    layout = go.Layout(
+        title='Cumulative Return of Emerging Market Equity Indices',
+        yaxis=dict(
+            title='Cumulative Return',
+            titlefont=dict(
+                color=color1),
+            tickfont=dict(
+                color=color1)
+        )
+
+    )
+            
+    fig_2 = go.Figure(data=data, layout=layout)
+    plot_url_2 = py.plot(fig_2, filename='Figure 2 Cumulative Return of Emerging Market Equity Indices', sharing='public')    
+    
+    
+    ### Figure 3 S&P500 with top 10 major equity index 12 month rolling
     top_10_list = ['ALL_ORDINARIES','S&P_BSE_SENSEX','IBOVESPA','FTSE_100','DAX','S&P500','HANG_SENG_INDEX','Nikki_225','SSE_Composite','ESTX50']
     equity_corr = equity_index[top_10_list].rolling(window=260).corr()
     mask = np.ones(equity_corr.iloc[0].shape,dtype='bool')
@@ -143,10 +250,45 @@ if __name__ == '__main__':
         )
 
     )
-    fig_1 = go.Figure(data=data, layout=layout)
-    plot_url = py.plot(fig_1, filename='Figure 1 Average Correlation Between 10 Major Equity Indices', sharing='public')
+    fig_3 = go.Figure(data=data, layout=layout)
+    plot_url_3 = py.plot(fig_3, filename='Figure 3 Average Correlation Between 10 Major Equity Indices', sharing='public')
     
-    ### Figure 2 Plot the all the yield change curve
+    
+    
+    ### Figure 4 Correlation Between DM and EM Countries Equity Index
+    DM_avg_equity_index = equity_index.loc[:,['ALL_ORDINARIES','FTSE_100','DAX','S&P500','Nikki_225','ESTX50']].mean(axis=1)
+    EM_avg_equity_index = equity_index.loc[:,['IBOVESPA','S&P_BSE_SENSEX','HANG_SENG_INDEX','SSE_Composite']].mean(axis=1)
+    
+    DM_EM_index = pd.concat([DM_avg_equity_index,EM_avg_equity_index],axis=1)
+    DM_EM_index.columns = ['DM Market','EM Market']
+    
+    DM_EM_corr = DM_EM_index.rolling(window=260).corr(DM_EM_index['DM Market']).ix['2001-01-02 00:00:00':,['EM Market']]
+    
+    trace1 = go.Scatter(
+        x=DM_EM_corr.index,
+        y=DM_EM_corr['EM Market'],
+        name='DM and EM Correlation'
+        )
+
+    data = [trace1]
+    layout = go.Layout(
+        title='Correlation Between DM and EM Countries Equity Index',
+        yaxis=dict(
+            title='Correlation',
+            titlefont=dict(
+                color=color1),
+            tickfont=dict(
+                color=color1)
+        )
+
+    )
+            
+    fig_4 = go.Figure(data=data, layout=layout)
+    plot_url_4 = py.plot(fig_4, filename='Figure 4 Correlation Between DM and EM Countries Equity Index', sharing='public')
+    
+    
+    
+    ### Figure 5 Plot the all the yield change curve
     libor = macro_d_price.loc[:,['Libor_1M','Libor_3M','Treasury_1Y','Treasury_5Y','Treasury_10Y','Treasury_20Y','Treasury_30Y']]
     
     trace1 = go.Scatter(
@@ -210,52 +352,45 @@ if __name__ == '__main__':
     layout['annotations'] = annotations   
             
             
-    fig_2 = go.Figure(data=data, layout=layout)
-    plot_url_2 = py.plot(fig_2, filename='Figure 2 Libor and Treasury Rate', sharing='public')
+    fig_5 = go.Figure(data=data, layout=layout)
+    plot_url_5 = py.plot(fig_5, filename='Figure 5 Libor and Treasury Rate', sharing='public')
     #libor.plot()
     
+    ### Figure 6 Cumulative Return of Major Currencies
     
-    
-    ### Figure 3 Developed Equity Market Cummulative return
-    cum_equity_index = (1+equity_index).cumprod()
-    cum_DM_equity_index = cum_equity_index.loc[:,['ALL_ORDINARIES','FTSE_100','DAX','S&P500','Nikki_225','ESTX50']]
+    cum_currency = (1+currency).cumprod()
     
     trace1 = go.Scatter(
-        x=cum_DM_equity_index.index,
-        y=cum_DM_equity_index['ALL_ORDINARIES'],
-        name='ALL_ORDINARIES'
+        x=cum_currency.index,
+        y=cum_currency['AUD/USD'],
+        name='AUD/USD'
     )
     trace2 = go.Scatter(
-        x=cum_DM_equity_index.index,
-        y=cum_DM_equity_index['FTSE_100'],
-        name='FTSE_100'
+        x=cum_currency.index,
+        y=cum_currency['GBP/USD'],
+        name='GBP/USD'
     )
     trace3 = go.Scatter(
-        x=cum_DM_equity_index.index,
-        y=cum_DM_equity_index['DAX'],
-        name='DAX'
+        x=cum_currency.index,
+        y=cum_currency['EUR/USD'],
+        name='EUR/USD'
     )
     trace4 = go.Scatter(
-        x=cum_DM_equity_index.index,
-        y=cum_DM_equity_index['S&P500'],
-        name='S&P500'
+        x=cum_currency.index,
+        y=cum_currency['CHF/USD'],
+        name='CHF/USD'
     )
     trace5 = go.Scatter(
-        x=cum_DM_equity_index.index,
-        y=cum_DM_equity_index['Nikki_225'],
-        name='Nikki_225'
-    )
-    trace6 = go.Scatter(
-        x=cum_DM_equity_index.index,
-        y=cum_DM_equity_index['ESTX50'],
-        name='ESTX50'
+        x=cum_currency.index,
+        y=cum_currency['JPY/USD'],
+        name='JPY/USD'
     )
 
-    data = [trace1,trace2,trace3,trace4,trace5,trace6]
+    data = [trace1,trace2,trace3,trace4,trace5]
     layout = go.Layout(
-        title='Cumulative Return of Developed Market Equity Indices',
+        title='Cumulative Return of Major Currencies',
         yaxis=dict(
-            title='Cumulative Return',
+            title='Cummulative Return',
             titlefont=dict(
                 color=color1),
             tickfont=dict(
@@ -264,50 +399,14 @@ if __name__ == '__main__':
 
     )
             
-    fig_3 = go.Figure(data=data, layout=layout)
-    plot_url_3 = py.plot(fig_3, filename='Figure 3 Cumulative Return of Developed Market Equity Indices', sharing='public')
+    fig_6 = go.Figure(data=data, layout=layout)
+    plot_url_6 = py.plot(fig_6, filename='Figure 6 Cumulative Return of Major Currencies', sharing='public')    
     
-    ### Figure 4 Developing Equity Market Cummulative return
-    cum_EM_equity_index = cum_equity_index.loc[:,['IBOVESPA','S&P_BSE_SENSEX','HANG_SENG_INDEX','SSE_Composite']]
     
-    trace1 = go.Scatter(
-        x=cum_EM_equity_index.index,
-        y=cum_EM_equity_index['IBOVESPA'],
-        name='IBOVESPA'
-    )
-    trace2 = go.Scatter(
-        x=cum_EM_equity_index.index,
-        y=cum_EM_equity_index['S&P_BSE_SENSEX'],
-        name='P_BSE_SENSEX'
-    )
-    trace3 = go.Scatter(
-        x=cum_EM_equity_index.index,
-        y=cum_EM_equity_index['HANG_SENG_INDEX'],
-        name='HANG_SENG_INDEX'
-    )
-    trace4 = go.Scatter(
-        x=cum_EM_equity_index.index,
-        y=cum_EM_equity_index['SSE_Composite'],
-        name='S&SSE_Composite'
-    )
+    
 
-    data = [trace1,trace2,trace3,trace4,trace5,trace6]
-    layout = go.Layout(
-        title='Cumulative Return of Emerging Market Equity Indices',
-        yaxis=dict(
-            title='Cumulative Return',
-            titlefont=dict(
-                color=color1),
-            tickfont=dict(
-                color=color1)
-        )
 
-    )
-            
-    fig_4 = go.Figure(data=data, layout=layout)
-    plot_url_4 = py.plot(fig_4, filename='Figure 4 Cumulative Return of Emerging Market Equity Indices', sharing='public')    
-
-    ### Figure 5 Correlation of Currencies with S&P 500
+    ### Figure 7 Correlation of Currencies with S&P 500
     currency_sp = pd.concat([currency,equity_index['S&P500']],axis=1)
     # deal with nan data
     currency_sp = currency_sp.interpolate()
@@ -325,7 +424,7 @@ if __name__ == '__main__':
     
     data = [trace1]
     layout = go.Layout(
-        title='Average Correlation of Major Currency ETF with S&P 500',
+        title='Average Correlation of Major Currencies with S&P 500',
         yaxis=dict(
             title='Average Correlation',
             titlefont=dict(
@@ -335,11 +434,11 @@ if __name__ == '__main__':
         )
 
     )
-    fig_5 = go.Figure(data=data, layout=layout)
-    plot_url_5 = py.plot(fig_5, filename='Figure 5 Average Correlation of Major Currency ETF with S&P 500', sharing='public')
+    fig_7 = go.Figure(data=data, layout=layout)
+    plot_url_7 = py.plot(fig_7, filename='Figure 7 Average Correlation of Major Currency ETF with S&P 500', sharing='public')
     
     
-    ### Figure 6 Correlation of 10Y Treasury Yield and S&P 500
+    ### Figure 8 Correlation of 10Y Treasury Yield and S&P 500
     trea_sp = pd.concat([macro_d_price['Treasury_10Y'],equity_index['S&P500']],axis=1)
     trea_sp = trea_sp.interpolate()
     trea_sp_corr = trea_sp.rolling(window=260).corr(trea_sp['S&P500']).ix[260:,['Treasury_10Y']]
@@ -381,10 +480,71 @@ if __name__ == '__main__':
         )
     )
     
-    fig6 = go.Figure(data=data, layout=layout)
-    plot_url_6 = py.plot(fig6, filename='Figure 6 Correlation 10 Year Treasury & S&P500',sharing='public')
+    fig8 = go.Figure(data=data, layout=layout)
+    plot_url_8 = py.plot(fig8, filename='Figure 8 Correlation 10 Year Treasury & S&P500',sharing='public')
     
-    ### Figure 7 Correlation of S&P500 and other commodities
+    
+
+    ### Figure 9 Cumulative Return of Commodities
+    cum_commodity_etf = (1+commodity_etf).cumprod()
+    cum_commodity_etf.loc[:,['CORN','GOLD','COPPER','OIL','SILVER','GAS','WEAT']].plot()
+    
+    trace1 = go.Scatter(
+        x=cum_commodity_etf.index,
+        y=cum_commodity_etf['CORN'],
+        name='CORN'
+    )
+    trace2 = go.Scatter(
+        x=cum_commodity_etf.index,
+        y=cum_commodity_etf['GOLD'],
+        name='GOLD'
+    )
+    trace3 = go.Scatter(
+        x=cum_commodity_etf.index,
+        y=cum_commodity_etf['COPPER'],
+        name='COPPER'
+    )
+    trace4 = go.Scatter(
+        x=cum_commodity_etf.index,
+        y=cum_commodity_etf['OIL'],
+        name='OIL'
+    )
+    trace5 = go.Scatter(
+        x=cum_commodity_etf.index,
+        y=cum_commodity_etf['SILVER'],
+        name='SILVER'
+    )
+    trace6 = go.Scatter(
+        x=cum_commodity_etf.index,
+        y=cum_commodity_etf['GAS'],
+        name='GAS'
+    )
+    trace7 = go.Scatter(
+        x=cum_commodity_etf.index,
+        y=cum_commodity_etf['WEAT'],
+        name='WEAT'
+    )
+
+    data = [trace1,trace2,trace3,trace4,trace5,trace6,trace7]
+    layout = go.Layout(
+        title='Cumulative Return of Major Commodities',
+        yaxis=dict(
+            title='Cumulative Return',
+            titlefont=dict(
+                color=color1),
+            tickfont=dict(
+                color=color1)
+        )
+
+    )
+            
+    fig_9 = go.Figure(data=data, layout=layout)
+    plot_url_9 = py.plot(fig_9, filename='Figure 9 Cumulative Return of Major Commodities', sharing='public')    
+    
+    
+    
+    
+    ### Figure 10 Correlation of S&P500 and other commodities
     comm_sp = pd.concat([commodity_etf,equity_index['S&P500']],axis=1)
     comm_sp = comm_sp.interpolate()
     comm_sp_corr = comm_sp.rolling(window=260).corr(comm_sp['S&P500']).ix[260:,['CORN','GOLD','COPPER','OIL','SILVER','GAS','WEAT']]
@@ -440,11 +600,11 @@ if __name__ == '__main__':
 
     )
             
-    fig_7 = go.Figure(data=data, layout=layout)
-    plot_url_7 = py.plot(fig_7, filename='Figure 7 Correlation of Commodities with S&P500', sharing='public')
+    fig_10 = go.Figure(data=data, layout=layout)
+    plot_url_10 = py.plot(fig_10, filename='Figure 10 Correlation of Commodities with S&P500', sharing='public')
     
     
-    ### Figure 8 Average Correlation with all Commodities
+    ### Figure 11 Average Correlation with all Commodities
     comm_corr = commodity_etf.rolling(window=260).corr()
     mask = np.ones(comm_corr.iloc[0].shape,dtype='bool')
     mask[np.triu_indices(len(comm_corr.iloc[0]))] = False
@@ -472,57 +632,32 @@ if __name__ == '__main__':
         )
 
     )
-    fig_8 = go.Figure(data=data, layout=layout)
-    plot_url_8 = py.plot(fig_8, filename='Figure 8 Average Correlation of Major Commodities', sharing='public')
+    fig_11 = go.Figure(data=data, layout=layout)
+    plot_url_11 = py.plot(fig_11, filename='Figure 11 Average Correlation of Major Commodities', sharing='public')
     
     
+    ### Figure 12 Cummulative Return of VIX and OAS
+    oas_vix = pd.concat([equity_index['VIX'],macro_d['OAS']],axis=1)
+    cum_oas_vix = (1 + oas_vix).cumprod()
+    cum_oas_vix = cum_oas_vix.interpolate()
     
-    
-    ### Figure 9 Cumulative Return of Commodities
-    cum_commodity_etf = (1+commodity_etf).cumprod()
-    cum_commodity_etf.loc[:,['CORN','GOLD','COPPER','OIL','SILVER','GAS','WEAT']].plot()
     
     trace1 = go.Scatter(
-        x=cum_commodity_etf.index,
-        y=cum_commodity_etf['CORN'],
-        name='CORN'
+        x=cum_oas_vix.index,
+        y=cum_oas_vix['VIX'],
+        name='VIX'
     )
     trace2 = go.Scatter(
-        x=cum_commodity_etf.index,
-        y=cum_commodity_etf['GOLD'],
-        name='GOLD'
-    )
-    trace3 = go.Scatter(
-        x=cum_commodity_etf.index,
-        y=cum_commodity_etf['COPPER'],
-        name='COPPER'
-    )
-    trace4 = go.Scatter(
-        x=cum_commodity_etf.index,
-        y=cum_commodity_etf['OIL'],
-        name='OIL'
-    )
-    trace5 = go.Scatter(
-        x=cum_commodity_etf.index,
-        y=cum_commodity_etf['SILVER'],
-        name='SILVER'
-    )
-    trace6 = go.Scatter(
-        x=cum_commodity_etf.index,
-        y=cum_commodity_etf['GAS'],
-        name='GAS'
-    )
-    trace7 = go.Scatter(
-        x=cum_commodity_etf.index,
-        y=cum_commodity_etf['WEAT'],
-        name='WEAT'
+        x=cum_oas_vix.index,
+        y=cum_oas_vix['OAS'],
+        name='OAS'
     )
 
-    data = [trace1,trace2,trace3,trace4,trace5,trace6,trace7]
+    data = [trace1,trace2]
     layout = go.Layout(
-        title='Cumulative Return of Major Commodities',
+        title='Cummulative Return of OAS and VIX',
         yaxis=dict(
-            title='Cumulative Return',
+            title='Cummulative Return',
             titlefont=dict(
                 color=color1),
             tickfont=dict(
@@ -531,13 +666,11 @@ if __name__ == '__main__':
 
     )
             
-    fig_9 = go.Figure(data=data, layout=layout)
-    plot_url_9 = py.plot(fig_9, filename='Figure 9 Cumulative Return of Major Commodities', sharing='public')
-    
-    
-    
-    
-    ### Figure 10 Correlation of OAS and S&P500
+    fig_12 = go.Figure(data=data, layout=layout)
+    plot_url_12 = py.plot(fig_12, filename='Figure 12 Cummulative Return of OAS and VIX', sharing='public')
+        
+ 
+    ### Figure 13 Correlation of OAS and S&P500
     oas_sp = pd.concat([-equity_index['S&P500'],equity_index['VIX'],macro_d['OAS']],axis=1)
     oas_sp = oas_sp.interpolate()
     oas_sp_corr = oas_sp.rolling(window=260).corr(oas_sp['OAS']).ix[260:,['S&P500','VIX']]
@@ -567,11 +700,85 @@ if __name__ == '__main__':
 
     )
             
-    fig_10 = go.Figure(data=data, layout=layout)
-    plot_url_10 = py.plot(fig_10, filename='Figure 10 Correlation of High Yield OAS to S&P500 and VIX', sharing='public')
+    fig_13 = go.Figure(data=data, layout=layout)
+    plot_url_13 = py.plot(fig_13, filename='Figure 13 Correlation of High Yield OAS to S&P500 and VIX', sharing='public')
     
-    ### Figure 11 Correlation between S&P 500 Sectors
+    
+    ### Figure 14 Cummulative Return of S&P 500 Sector Index
+    cum_equity_sector = (1+equity_sector).cumprod()
+    
+    
+    trace1 = go.Scatter(
+        x=cum_equity_sector.index,
+        y=cum_equity_sector['Materials'],
+        name='Materials'
+    )
+    trace2 = go.Scatter(
+        x=cum_equity_sector.index,
+        y=cum_equity_sector['Energy'],
+        name='Energy'
+    )
+    trace3 = go.Scatter(
+        x=cum_equity_sector.index,
+        y=cum_equity_sector['Financials'],
+        name='Financials'
+    )
+    trace4 = go.Scatter(
+        x=cum_equity_sector.index,
+        y=cum_equity_sector['Industrials'],
+        name='Industrials'
+    )
+    trace5 = go.Scatter(
+        x=cum_equity_sector.index,
+        y=cum_equity_sector['Technology'],
+        name='Technology'
+    )
+    trace6 = go.Scatter(
+        x=cum_equity_sector.index,
+        y=cum_equity_sector['Consumer Staples'],
+        name='Consumer Staples'
+    )
+    trace7 = go.Scatter(
+        x=cum_equity_sector.index,
+        y=cum_equity_sector['Real Estate'],
+        name='Real Estate'
+    )
+    trace8 = go.Scatter(
+        x=cum_equity_sector.index,
+        y=cum_equity_sector['Utilities'],
+        name='Utilities'
+    )
+    trace9 = go.Scatter(
+        x=cum_equity_sector.index,
+        y=cum_equity_sector['Health Care'],
+        name='Health Care'
+    )
+    trace10 = go.Scatter(
+        x=cum_equity_sector.index,
+        y=cum_equity_sector['Consumer Discretionary'],
+        name='Consumer Discretionary'
+    )  
+    
+    
+    
+    data = [trace1,trace2,trace3,trace4,trace5,trace6,trace7,trace8,trace9,trace10]
+    layout = go.Layout(
+        title='Cummulative Return of Major Equity Sector Indices',
+        yaxis=dict(
+            title='Cummulative Return',
+            titlefont=dict(
+                color=color1),
+            tickfont=dict(
+                color=color1)
+        )
 
+    )
+            
+    fig_14 = go.Figure(data=data, layout=layout)
+    plot_url_14 = py.plot(fig_14, filename='Figure 14 Cummulative Return of Major Equity Sector Indices', sharing='public')    
+    
+    
+    ### Figure 15 Correlation between S&P 500 Sectors
     equity_sector_corr = equity_sector.rolling(window=260).corr()
     mask_sector = np.ones(equity_sector_corr.iloc[0].shape,dtype='bool')
     mask_sector[np.triu_indices(len(equity_sector_corr.iloc[0]))] = False
@@ -602,39 +809,10 @@ if __name__ == '__main__':
 
     )
             
-    fig_11 = go.Figure(data=data, layout=layout)
-    plot_url_11 = py.plot(fig_11, filename='Figure 11 Average Correlation of Different Sectors in S&P500', sharing='public')
+    fig_15 = go.Figure(data=data, layout=layout)
+    plot_url_15 = py.plot(fig_15, filename='Figure 15 Average Correlation of Different Sectors in S&P500', sharing='public')
     
-    ### Figure 12 Correlation Between DM and EM Countries Equity Index
-    DM_avg_equity_index = equity_index.loc[:,['ALL_ORDINARIES','FTSE_100','DAX','S&P500','Nikki_225','ESTX50']].mean(axis=1)
-    EM_avg_equity_index = equity_index.loc[:,['IBOVESPA','S&P_BSE_SENSEX','HANG_SENG_INDEX','SSE_Composite']].mean(axis=1)
-    
-    DM_EM_index = pd.concat([DM_avg_equity_index,EM_avg_equity_index],axis=1)
-    DM_EM_index.columns = ['DM Market','EM Market']
-    
-    DM_EM_corr = DM_EM_index.rolling(window=260).corr(DM_EM_index['DM Market']).ix['2001-01-02 00:00:00':,['EM Market']]
-    
-    trace1 = go.Scatter(
-        x=DM_EM_corr.index,
-        y=DM_EM_corr['EM Market'],
-        name='DM and EM Correlation'
-        )
 
-    data = [trace1]
-    layout = go.Layout(
-        title='Correlation Between DM and EM Countries Equity Index',
-        yaxis=dict(
-            title='Correlation',
-            titlefont=dict(
-                color=color1),
-            tickfont=dict(
-                color=color1)
-        )
-
-    )
-            
-    fig_11 = go.Figure(data=data, layout=layout)
-    plot_url_11 = py.plot(fig_11, filename='Figure 12 Correlation Between DM and EM Countries Equity Index', sharing='public')
     
     ###########################################
     
