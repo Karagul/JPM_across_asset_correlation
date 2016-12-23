@@ -105,8 +105,10 @@ if __name__ == '__main__':
     equity_etf = get_return(equity_etf_list)
     equity_etf = add_column_name(equity_etf)
     ###### Equity Index ######
-    equity_index = get_return(equity_index_list)  
+    equity_index = get_return(equity_index_list)
+    equity_index_price = get_price(equity_index_list)
     equity_index = add_column_name(equity_index)
+    equity_index_price = add_column_name(equity_index_price)
     ###### Currency ######
     currency = get_return(currency_list)    
     currency = add_column_name(currency)
@@ -131,32 +133,32 @@ if __name__ == '__main__':
     
     trace1 = go.Scatter(
         x=cum_DM_equity_index.index,
-        y=cum_DM_equity_index['ALL_ORDINARIES'],
+        y=100*cum_DM_equity_index['ALL_ORDINARIES'],
         name='ALL_ORDINARIES'
     )
     trace2 = go.Scatter(
         x=cum_DM_equity_index.index,
-        y=cum_DM_equity_index['FTSE_100'],
+        y=100*cum_DM_equity_index['FTSE_100'],
         name='FTSE_100'
     )
     trace3 = go.Scatter(
         x=cum_DM_equity_index.index,
-        y=cum_DM_equity_index['DAX'],
+        y=100*cum_DM_equity_index['DAX'],
         name='DAX'
     )
     trace4 = go.Scatter(
         x=cum_DM_equity_index.index,
-        y=cum_DM_equity_index['S&P500'],
+        y=100*cum_DM_equity_index['S&P500'],
         name='S&P500'
     )
     trace5 = go.Scatter(
         x=cum_DM_equity_index.index,
-        y=cum_DM_equity_index['Nikki_225'],
+        y=100*cum_DM_equity_index['Nikki_225'],
         name='Nikki_225'
     )
     trace6 = go.Scatter(
         x=cum_DM_equity_index.index,
-        y=cum_DM_equity_index['ESTX50'],
+        y=100*cum_DM_equity_index['ESTX50'],
         name='ESTX50'
     )
 
@@ -168,7 +170,8 @@ if __name__ == '__main__':
             titlefont=dict(
                 color=color1),
             tickfont=dict(
-                color=color1)
+                color=color1),
+            ticksuffix='%'
         )
 
     )
@@ -185,22 +188,22 @@ if __name__ == '__main__':
     
     trace1 = go.Scatter(
         x=cum_EM_equity_index.index,
-        y=cum_EM_equity_index['IBOVESPA'],
+        y=100*cum_EM_equity_index['IBOVESPA'],
         name='IBOVESPA'
     )
     trace2 = go.Scatter(
         x=cum_EM_equity_index.index,
-        y=cum_EM_equity_index['S&P_BSE_SENSEX'],
+        y=100*cum_EM_equity_index['S&P_BSE_SENSEX'],
         name='P_BSE_SENSEX'
     )
     trace3 = go.Scatter(
         x=cum_EM_equity_index.index,
-        y=cum_EM_equity_index['HANG_SENG_INDEX'],
+        y=100*cum_EM_equity_index['HANG_SENG_INDEX'],
         name='HANG_SENG_INDEX'
     )
     trace4 = go.Scatter(
         x=cum_EM_equity_index.index,
-        y=cum_EM_equity_index['SSE_Composite'],
+        y=100*cum_EM_equity_index['SSE_Composite'],
         name='S&SSE_Composite'
     )
 
@@ -212,7 +215,8 @@ if __name__ == '__main__':
             titlefont=dict(
                 color=color1),
             tickfont=dict(
-                color=color1)
+                color=color1),
+            ticksuffix='%'
         )
 
     )
@@ -235,12 +239,13 @@ if __name__ == '__main__':
     trace1 = go.Scatter(
         x=equity_avg_corr.index,
         y=equity_avg_corr['Average_Correlation'],
-        name='Avg Corr'
+        name='Avg Correlation'
     ) 
     
     data = [trace1]
     layout = go.Layout(
-        title='Average Correlation Between 10 Major Equity Indices with 12 Months Rolling Window',
+        title='Average Correlation Between 10 Major Equity Indices',
+        showlegend=True,
         yaxis=dict(
             title='Equity Index Correlation',
             titlefont=dict(
@@ -273,8 +278,9 @@ if __name__ == '__main__':
     data = [trace1]
     layout = go.Layout(
         title='Correlation Between DM and EM Countries Equity Index',
+        showlegend=True,
         yaxis=dict(
-            title='Correlation',
+            title='DM EM Correlation',
             titlefont=dict(
                 color=color1),
             tickfont=dict(
@@ -331,11 +337,12 @@ if __name__ == '__main__':
     layout = go.Layout(
         title='Libor/Treasury Rate',
         yaxis=dict(
-            title='Percent',
+            title='Yield',
             titlefont=dict(
                 color=color1),
             tickfont=dict(
-                color=color1)
+                color=color1),
+            ticksuffix='%'
         )
 
     )
@@ -362,27 +369,27 @@ if __name__ == '__main__':
     
     trace1 = go.Scatter(
         x=cum_currency.index,
-        y=cum_currency['AUD/USD'],
+        y=100*cum_currency['AUD/USD'],
         name='AUD/USD'
     )
     trace2 = go.Scatter(
         x=cum_currency.index,
-        y=cum_currency['GBP/USD'],
+        y=100*cum_currency['GBP/USD'],
         name='GBP/USD'
     )
     trace3 = go.Scatter(
         x=cum_currency.index,
-        y=cum_currency['EUR/USD'],
+        y=100*cum_currency['EUR/USD'],
         name='EUR/USD'
     )
     trace4 = go.Scatter(
         x=cum_currency.index,
-        y=cum_currency['CHF/USD'],
+        y=100*cum_currency['CHF/USD'],
         name='CHF/USD'
     )
     trace5 = go.Scatter(
         x=cum_currency.index,
-        y=cum_currency['JPY/USD'],
+        y=100*cum_currency['JPY/USD'],
         name='JPY/USD'
     )
 
@@ -394,7 +401,8 @@ if __name__ == '__main__':
             titlefont=dict(
                 color=color1),
             tickfont=dict(
-                color=color1)
+                color=color1),
+            ticksuffix='%'
         )
 
     )
@@ -419,12 +427,13 @@ if __name__ == '__main__':
     trace1 = go.Scatter(
         x=currency_sp_avg_corr.index,
         y=currency_sp_avg_corr.values,
-        name='Average_Correlation'
+        name='Average Correlation'
     ) 
     
     data = [trace1]
     layout = go.Layout(
         title='Average Correlation of Major Currencies with S&P 500',
+        showlegend=True,
         yaxis=dict(
             title='Average Correlation',
             titlefont=dict(
@@ -451,29 +460,29 @@ if __name__ == '__main__':
     trace1 = go.Scatter(
         x=trea_sp_corr_yield.index,
         y=trea_sp_corr_yield['Correlation'],
-        name='Correlation 10 Y Treasury & Equity'
+        name='Correlation of Treasury&Equity'
     ) 
     
     trace2 = go.Scatter(
         x=trea_sp_corr_yield.index,
         y=trea_sp_corr_yield['10Y_yield'],
-        name='Treasury 10 Year Yield',
+        name='Treasury Yield',
         yaxis='y2'
     ) 
     
     data = [trace1, trace2]
     layout = go.Layout(
-        title='Correlation 10_Y Treasury & S&P500',
+        title='Correlation 10 Year Treasury & S&P500',
         yaxis=dict(
             title='Correlation'
         ),
         yaxis2=dict(
-            title='Treasury 10 Year Yield',
+            title='Treasury_10Y',
             titlefont=dict(
-                color='rgb(148, 103, 189)'
+                color=color2
             ),
             tickfont=dict(
-                color='rgb(148, 103, 189)'
+                color=color2
             ),
             overlaying='y',
             side='right'
@@ -487,41 +496,41 @@ if __name__ == '__main__':
 
     ### Figure 9 Cumulative Return of Commodities
     cum_commodity_etf = (1+commodity_etf).cumprod()
-    cum_commodity_etf.loc[:,['CORN','GOLD','COPPER','OIL','SILVER','GAS','WEAT']].plot()
+    # cum_commodity_etf.loc[:,['CORN','GOLD','COPPER','OIL','SILVER','GAS','WEAT']].plot()
     
     trace1 = go.Scatter(
         x=cum_commodity_etf.index,
-        y=cum_commodity_etf['CORN'],
+        y=100*cum_commodity_etf['CORN'],
         name='CORN'
     )
     trace2 = go.Scatter(
         x=cum_commodity_etf.index,
-        y=cum_commodity_etf['GOLD'],
+        y=100*cum_commodity_etf['GOLD'],
         name='GOLD'
     )
     trace3 = go.Scatter(
         x=cum_commodity_etf.index,
-        y=cum_commodity_etf['COPPER'],
+        y=100*cum_commodity_etf['COPPER'],
         name='COPPER'
     )
     trace4 = go.Scatter(
         x=cum_commodity_etf.index,
-        y=cum_commodity_etf['OIL'],
+        y=100*cum_commodity_etf['OIL'],
         name='OIL'
     )
     trace5 = go.Scatter(
         x=cum_commodity_etf.index,
-        y=cum_commodity_etf['SILVER'],
+        y=100*cum_commodity_etf['SILVER'],
         name='SILVER'
     )
     trace6 = go.Scatter(
         x=cum_commodity_etf.index,
-        y=cum_commodity_etf['GAS'],
+        y=100*cum_commodity_etf['GAS'],
         name='GAS'
     )
     trace7 = go.Scatter(
         x=cum_commodity_etf.index,
-        y=cum_commodity_etf['WEAT'],
+        y=100*cum_commodity_etf['WEAT'],
         name='WEAT'
     )
 
@@ -533,7 +542,8 @@ if __name__ == '__main__':
             titlefont=dict(
                 color=color1),
             tickfont=dict(
-                color=color1)
+                color=color1),
+            ticksuffix='%'
         )
 
     )
@@ -617,12 +627,13 @@ if __name__ == '__main__':
     trace1 = go.Scatter(
         x=currency_sp_avg_corr.index,
         y=currency_sp_avg_corr.values,
-        name='Average_Correlation'
+        name='Average Correlation'
     ) 
     
     data = [trace1]
     layout = go.Layout(
         title='Average Correlation of Major Commodities',
+        showlegend=True,
         yaxis=dict(
             title='Average Correlation',
             titlefont=dict(
@@ -637,37 +648,48 @@ if __name__ == '__main__':
     
     
     ### Figure 12 Cummulative Return of VIX and OAS
-    oas_vix = pd.concat([equity_index['VIX'],macro_d['OAS']],axis=1)
-    cum_oas_vix = (1 + oas_vix).cumprod()
-    cum_oas_vix = cum_oas_vix.interpolate()
+    oas_vix = pd.concat([equity_index_price['VIX'],macro_d['OAS']],axis=1)
+    oas_vix = oas_vix.interpolate()
     
     
     trace1 = go.Scatter(
-        x=cum_oas_vix.index,
-        y=cum_oas_vix['VIX'],
+        x=oas_vix.index,
+        y=oas_vix['VIX'],
         name='VIX'
     )
     trace2 = go.Scatter(
-        x=cum_oas_vix.index,
-        y=cum_oas_vix['OAS'],
-        name='OAS'
+        x=oas_vix.index,
+        y=oas_vix['OAS'],
+        name='OAS',
+        yaxis='y2'
     )
 
     data = [trace1,trace2]
     layout = go.Layout(
-        title='Cummulative Return of OAS and VIX',
+        title='Option Adjusted Spread (OAS) and VIX',
         yaxis=dict(
-            title='Cummulative Return',
+            title='VIX Value',
             titlefont=dict(
                 color=color1),
             tickfont=dict(
                 color=color1)
+        ),
+        yaxis2=dict(
+            title='OAS',
+            titlefont=dict(
+                color=color1
+            ),
+            tickfont=dict(
+                color=color1
+            ),
+            overlaying='y',
+            side='right'
         )
-
     )
             
+            
     fig_12 = go.Figure(data=data, layout=layout)
-    plot_url_12 = py.plot(fig_12, filename='Figure 12 Cummulative Return of OAS and VIX', sharing='public')
+    plot_url_12 = py.plot(fig_12, filename='Figure 12 Option Adjusted Spread (OAS) and VIX', sharing='public')
         
  
     ### Figure 13 Correlation of OAS and S&P500
@@ -710,72 +732,72 @@ if __name__ == '__main__':
     
     trace1 = go.Scatter(
         x=cum_equity_sector.index,
-        y=cum_equity_sector['Materials'],
+        y=100*cum_equity_sector['Materials'],
         name='Materials'
     )
     trace2 = go.Scatter(
         x=cum_equity_sector.index,
-        y=cum_equity_sector['Energy'],
+        y=100*cum_equity_sector['Energy'],
         name='Energy'
     )
     trace3 = go.Scatter(
         x=cum_equity_sector.index,
-        y=cum_equity_sector['Financials'],
+        y=100*cum_equity_sector['Financials'],
         name='Financials'
     )
     trace4 = go.Scatter(
         x=cum_equity_sector.index,
-        y=cum_equity_sector['Industrials'],
+        y=100*cum_equity_sector['Industrials'],
         name='Industrials'
     )
     trace5 = go.Scatter(
         x=cum_equity_sector.index,
-        y=cum_equity_sector['Technology'],
+        y=100*cum_equity_sector['Technology'],
         name='Technology'
     )
     trace6 = go.Scatter(
         x=cum_equity_sector.index,
-        y=cum_equity_sector['Consumer Staples'],
+        y=100*cum_equity_sector['Consumer Staples'],
         name='Consumer Staples'
     )
     trace7 = go.Scatter(
         x=cum_equity_sector.index,
-        y=cum_equity_sector['Real Estate'],
+        y=100*cum_equity_sector['Real Estate'],
         name='Real Estate'
     )
     trace8 = go.Scatter(
         x=cum_equity_sector.index,
-        y=cum_equity_sector['Utilities'],
+        y=100*cum_equity_sector['Utilities'],
         name='Utilities'
     )
     trace9 = go.Scatter(
         x=cum_equity_sector.index,
-        y=cum_equity_sector['Health Care'],
+        y=100*cum_equity_sector['Health Care'],
         name='Health Care'
     )
     trace10 = go.Scatter(
         x=cum_equity_sector.index,
-        y=cum_equity_sector['Consumer Discretionary'],
+        y=100*cum_equity_sector['Consumer Discretionary'],
         name='Consumer Discretionary'
     )  
     
     
-    
     data = [trace1,trace2,trace3,trace4,trace5,trace6,trace7,trace8,trace9,trace10]
     layout = go.Layout(
-        title='Cummulative Return of Major Equity Sector Indices',
+        title='Cummulative Return of Major S&P500 Component Indices',
         yaxis=dict(
             title='Cummulative Return',
             titlefont=dict(
                 color=color1),
             tickfont=dict(
-                color=color1)
+                color=color1),
+            ticksuffix='%'
         )
 
     )
             
     fig_14 = go.Figure(data=data, layout=layout)
-    plot_url_14 = py.plot(fig_14, filename='Figure 14 Cummulative Return of Major Equity Sector Indices', sharing='public')    
+    plot_url_14 = py.plot(fig_14, filename='Figure 14 Cummulative Return of Major S&P500 Component Indices', sharing='public')    
     
     
     ### Figure 15 Correlation between S&P 500 Sectors
@@ -793,12 +815,13 @@ if __name__ == '__main__':
     trace1 = go.Scatter(
         x=equity_sector_avg_corr.index,
         y=equity_sector_avg_corr['Average_Correlation'],
-        name='Average_Correlation'
+        name='Average Correlation'
         )
 
     data = [trace1]
     layout = go.Layout(
-        title='Average Correlation of Different Sectors in S&P500',
+        title='Average Correlation of Different Component in S&P500',
+        showlegend=True,
         yaxis=dict(
             title='Average Correlation',
             titlefont=dict(
@@ -810,7 +833,7 @@ if __name__ == '__main__':
     )
             
     fig_15 = go.Figure(data=data, layout=layout)
-    plot_url_15 = py.plot(fig_15, filename='Figure 15 Average Correlation of Different Sectors in S&P500', sharing='public')
+    plot_url_15 = py.plot(fig_15, filename='Figure 15 Average Correlation of Different Component in S&P500', sharing='public')
     
 
     
