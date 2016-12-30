@@ -58,9 +58,9 @@ def add_column_name(dataframe):
        
 if __name__ == '__main__':
     equity_index_list = ['^GSPC','^N225','^SSEC','^FTSE','^HSI','^BVSP','^AORD','^GDAXI','^BSESN']
-    currency_list = ['FXY','FXB','FXE','FXA','FXF']
+    currency_list = ['FXY','FXB','FXE','FXA','FXCH']
     
-    ticker_dict = {'FXY':'JPY/USD','FXB':'GBP/USD','FXE':'EUR/USD','FXA':'AUD/USD','FXF':'CHF/USD',\
+    ticker_dict = {'FXY':'JPY/USD','FXB':'GBP/USD','FXE':'EUR/USD','FXA':'AUD/USD','FXCH':'CHY/USD','BZF':'BRL/USD',
          '^GSPC':'S&P500','^N225':'Nikki_225','^SSEC':'SSE_Composite','^FTSE':'FTSE_100','^HSI':'HANG_SENG_INDEX',\
          '^BVSP':'IBOVESPA','^AORD':'ALL_ORDINARIES','^GDAXI':'DAX','^BSESN':'S&P_BSE_SENSEX',\
          'XLY':'Consumer Discretionary','XLP':'Consumer Staples','XLE':'Energy','XLF':'Financials',\
@@ -84,8 +84,10 @@ if __name__ == '__main__':
     equity_str_qtd = ["%.4f" % x for x in 100*equity_data_qtd]
     equity_str_ytd = ["%.4f" % x for x in 100*equity_data_ytd]
 
-
-
+    a=[]
+    for i,j,k,l,m in zip(equity_index_dtd.columns,equity_str_dtd,equity_str_mtd,equity_str_qtd,equity_str_ytd):
+        a.append(i+'<br>'+j+'%'+'<br>'+'MTD/QTD/YTD'+'<br>'+k+'%/'+l+'%/'+m+'%')
+    
 
 
     py.sign_in('fzn0728', '1enskD2UuiVkZbqcMZ5K')
@@ -107,21 +109,18 @@ if __name__ == '__main__':
       "uid": "2f55b6"
     }
     '''
-    a=[]
-    for i,j,k,l,m in zip(equity_index_dtd.columns,equity_str_dtd,equity_str_mtd,equity_str_qtd,equity_str_ytd):
-        a.append(i+'<br>'+j+'%'+'<br>'+'MTD/QTD/YTD'+'<br>'+k+'%/'+l+'%/'+m+'%')
-    
+    label_color = "rgb(0, 215, 0)"
 
     Australia = {
       "hoverinfo": "text+name", 
       "lat": [-33.8688],
       "lon": [151.2093],
       "marker":{
-          "color":"rgb(255, 70, 70)",
+          "color":label_color,
           "size":"15",
           "opacity":0.5
                 },
-      "text":['ALL_ORDINARIES:<br>0.35%<br>USD/AUD:<br>1.39'],
+      "text":a[0],
       "name":'Australia',
       "mode": "markers", 
       "type": "scattergeo", 
@@ -132,11 +131,11 @@ if __name__ == '__main__':
       "lat": [19.0760],
       "lon": [72.8777],
       "marker":{
-          "color":"rgb(255, 70, 70)",
+          "color":label_color,
           "size":"15",
           "opacity":0.5
                 },
-      "text":['S&P_BSE_SENSEX:<br>-0.05%<br>USD/INR:<br>67.96'],
+      "text":a[1],
       "name":'India',
       "mode": "markers", 
       "type": "scattergeo", 
@@ -147,11 +146,11 @@ if __name__ == '__main__':
       "lat": [-23.5505],
       "lon": [-46.6333],
       "marker":{
-          "color":"rgb(255, 70, 70)",
+          "color":label_color,
           "size":"15",
           "opacity":0.5
                 },
-      "text":['IBOVESPA:<br>1.20%<br>USD/BRL:<br>3.25'],
+      "text":a[2],
       "name":'Brazil',
       "mode": "markers", 
       "type": "scattergeo", 
@@ -162,11 +161,11 @@ if __name__ == '__main__':
       "lat": [51.5074],
       "lon": [-0.1278],
       "marker":{
-          "color":"rgb(255, 70, 70)",
+          "color":label_color,
           "size":"15",
           "opacity":0.5
                 },
-      "text":['FTSE_100:<br>-0.12%<br>GBP/USD:<br>1.227'],
+      "text":a[3],
       "name":'UK',
       "mode": "markers", 
       "type": "scattergeo", 
@@ -177,11 +176,11 @@ if __name__ == '__main__':
       "lat": [52.5200],
       "lon": [13.4050],
       "marker":{
-          "color":"rgb(255, 70, 70)",
+          "color":label_color,
           "size":"15",
           "opacity":0.5
                 },
-      "text":['DAX:<br>-0.38%<br>EUR/USD:<br>0.95'],
+      "text":a[4],
       "name":'Germany',
       "mode": "markers", 
       "type": "scattergeo", 
@@ -192,11 +191,11 @@ if __name__ == '__main__':
       "lat": [40.7128],
       "lon": [-74.0059],
       "marker":{
-          "color":"rgb(255, 70, 70)",
+          "color":label_color,
           "size":"15",
           "opacity":0.5
                 },
-      "text":['S&P500:<br>0.77%'],
+      "text":a[5],
       "name":'US',
       "mode": "markers", 
       "type": "scattergeo", 
@@ -207,11 +206,11 @@ if __name__ == '__main__':
       "lat": [22.3964],
       "lon": [114.1095],
       "marker":{
-          "color":"rgb(255, 70, 70)",
+          "color":label_color,
           "size":"15",
           "opacity":0.5
                 },
-      "text":['HANG_SENG_INDEX:<br>2.05%<br>USD/HKD:<br>7.7548'],
+      "text":a[6],
       "name":'Hong Kong',
       "mode": "markers", 
       "type": "scattergeo", 
@@ -224,11 +223,11 @@ if __name__ == '__main__':
       "lat": [35.6895],
       "lon": [139.6917],
       "marker":{
-          "color":"rgb(255, 70, 70)",
+          "color":label_color,
           "size":"15",
           "opacity":0.5
                 },
-      "text":['Nikki_225:<br>1.65%<br>JPY/USD:<br>116.54'],
+      "text":a[7],
       "name":'Japan',
       "mode": "markers", 
       "type": "scattergeo", 
@@ -239,11 +238,11 @@ if __name__ == '__main__':
       "lat": [39.9042],
       "lon": [116.4074],
       "marker":{
-          "color":"rgb(255, 70, 70)",
+          "color":label_color,
           "size":"15",
           "opacity":0.5
                 },
-      "text":['SSE_Composite:<br>0.22%<br>USD/CNY:<br>6.95'],
+      "text":a[8],
       "name":'Hong Kong',
       "mode": "markers", 
       "type": "scattergeo", 
@@ -261,21 +260,23 @@ if __name__ == '__main__':
     }
     '''
     
-    trace1 = {
-      "z": ['2016','2016','2016','2016','2016','2016','2016','2016'],
+    Country_index = {
+      "z": ['7','8','6','5','4','1','2','3'],
       "text": ['Australia','India','Brazil','United Kingdom','Germany','United States of America','China','Japan'],
-      "colorscale": [[0.0, "rgb(242,240,247)"], [0.2, "rgb(218,218,235)"], \
-                      [0.4, "rgb(188,189,220)"], [0.6, "rgb(158,154,200)"], \
-                       [0.8, "rgb(117,107,177)"], [1.0, "rgb(84,39,143)"]], 
+      "colorscale": [[0.0, "rgb(255,0,0)"], [0.2, "rgb(255,255,0)"], [0.4, "rgb(128,255,0)"],\
+                      [0.6, "rgb(0,255,64)"],[0.8, "rgb(0,255,255)"], [1.0, "rgb(0,128,192)"]], 
       "locations": ["AUS","IND","BRA","GBR","DEU","USA","CHN","JPN"], 
       "type": "choropleth", 
       "uid": "b73666", 
       "showscale": False,
+      "name":"Country Index",
+      "zmax":"9",
+      "zmin":"0"
     }
     
     
     
-    data = Data([Australia, India, Brazil, UK, Germany, US, Hong_Kong, Japan, Shanghai, trace1])
+    data = Data([Australia, India, Brazil, UK, Germany, US, Hong_Kong, Japan, Shanghai, Country_index])
     layout = {
       "autosize": True, 
       "geo": {
