@@ -16,6 +16,7 @@ import json
 import matplotlib.pyplot as plt
 import plotly.plotly as py
 import plotly.graph_objs as go
+from datetime import datetime, timedelta
 
 def get_return(tickerlist):
     start = datetime(2000,1,1)
@@ -25,6 +26,10 @@ def get_return(tickerlist):
     price_df = price_df.interpolate()
     past_price_df = price_df.shift(1)
     return_df = (price_df - past_price_df)/past_price_df
+
+    for i in return_df.columns:
+        first_index = return_df.loc[:,i].first_valid_index()-timedelta(days=1)
+        return_df.ix[first_index,i]=0
     return return_df
     
     
@@ -34,7 +39,7 @@ def get_price(tickerlist):
     p = wb.DataReader(tickerlist,'yahoo',start,end)
     price_df = p['Adj Close']
     price_df = price_df.interpolate()
-
+    
     return price_df    
 
 
@@ -128,7 +133,7 @@ if __name__ == '__main__':
     
     
     ### Figure 1 Developed Equity Market Cummulative return
-    cum_equity_index = (1+equity_index).cumprod()
+    cum_equity_index = (1+equity_index).cumprod()-1
     cum_DM_equity_index = cum_equity_index.loc[:,['ALL_ORDINARIES','FTSE_100','DAX','S&P500','Nikki_225','ESTX50']]
     
     trace1 = go.Scatter(
@@ -365,7 +370,7 @@ if __name__ == '__main__':
     
     ### Figure 6 Cumulative Return of Major Currencies
     
-    cum_currency = (1+currency).cumprod()
+    cum_currency = (1+currency).cumprod()-1
     
     trace1 = go.Scatter(
         x=cum_currency.index,
@@ -495,7 +500,7 @@ if __name__ == '__main__':
     
 
     ### Figure 9 Cumulative Return of Commodities
-    cum_commodity_etf = (1+commodity_etf).cumprod()
+    cum_commodity_etf = (1+commodity_etf).cumprod()-1
     # cum_commodity_etf.loc[:,['CORN','GOLD','COPPER','OIL','SILVER','GAS','WEAT']].plot()
     
     trace1 = go.Scatter(
@@ -647,7 +652,7 @@ if __name__ == '__main__':
     plot_url_11 = py.plot(fig_11, filename='Figure 11 Average Correlation of Major Commodities', sharing='public')
     
     
-    ### Figure 12 Cummulative Return of VIX and OAS
+    ### Figure 12 Option Adjusted Spread (OAS) and VIX
     oas_vix = pd.concat([equity_index_price['VIX'],macro_d['OAS']],axis=1)
     oas_vix = oas_vix.interpolate()
     
@@ -727,7 +732,7 @@ if __name__ == '__main__':
     
     
     ### Figure 14 Cummulative Return of S&P 500 Sector Index
-    cum_equity_sector = (1+equity_sector).cumprod()
+    cum_equity_sector = (1+equity_sector).cumprod()-1
     
     
     trace1 = go.Scatter(
