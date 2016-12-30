@@ -18,6 +18,7 @@ import plotly.plotly as py
 import plotly.graph_objs as go
 from datetime import datetime, timedelta
 
+
 def get_return(tickerlist):
     start = datetime(2000,1,1)
     end = datetime(2016,12,19)
@@ -126,6 +127,8 @@ if __name__ == '__main__':
     
     Fed_Rate,macro_m_price,macro_m,macro_d_price,macro_d = get_libor()
 
+    
+    
     # Plotly
     color1 = 'b'
     color2 = 'b'
