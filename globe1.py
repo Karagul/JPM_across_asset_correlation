@@ -28,41 +28,108 @@ from plotly.graph_objs import *
 import dateutil.relativedelta
 import urllib.request
 import ast
-import dateutil.relativedelta
+import math
+import string
 
-def get_return(tickerlist):
-    end = datetime.today() - timedelta(days=1)
-    start = end - dateutil.relativedelta.relativedelta(months=12)
-    p = wb.DataReader(tickerlist,'yahoo',start,end)
-    price_df = p['Adj Close']
-    price_df = price_df.interpolate()
-    
-    
-    dtd_price_df = price_df.shift(1)
-    mtd_price_df = price_df.shift(21)
-    qtd_price_df = price_df.shift(63)
-    ytd_price_df = price_df.shift(252)
-    
-    
-    return_df_dtd = (price_df - dtd_price_df)/dtd_price_df
-    return_df_mtd = (price_df - mtd_price_df)/mtd_price_df
-    return_df_qtd = (price_df - qtd_price_df)/qtd_price_df
-    return_df_ytd = (price_df - ytd_price_df)/ytd_price_df
-
-    return_df_dtd = add_column_name(return_df_dtd)
-    return_df_mtd = add_column_name(return_df_mtd)
-    return_df_qtd = add_column_name(return_df_qtd)
-    return_df_ytd = add_column_name(return_df_ytd)
-    return return_df_dtd,return_df_mtd,return_df_qtd,return_df_ytd
 
     
+'''
+    last_year = datetime.today().replace(month=1,day=1)-dateutil.relativedelta.relativedelta(days=1)
+    price.columns[price.isnull().values[0]]
+    price = wb.DataReader(equity_index_list,'yahoo',last_year,last_year)['Adj Close']
 
+    price = wb.DataReader(equity_index_list,'yahoo',last_year-dateutil.relativedelta.relativedelta(days=2),last_year-dateutil.relativedelta.relativedelta(days=2))['Adj Close']
+'''
+
+
+
+
+    
+def get_price(tickerlist):
+    # get all datetime
+    # end = datetime.today()-dateutil.relativedelta.relativedelta(days=1)
+    last_day = datetime.today()-dateutil.relativedelta.relativedelta(days=1)
+    last_last_day = datetime.today()-dateutil.relativedelta.relativedelta(days=2)
+    last_month = datetime.today().replace(day=1)-dateutil.relativedelta.relativedelta(days=1)
+    q = math.ceil(datetime.today().month/3)-1
+    last_quarter = datetime.today().replace(month=q*3+1,day=1)-dateutil.relativedelta.relativedelta(days=1)
+    last_year = datetime.today().replace(month=1,day=1)-dateutil.relativedelta.relativedelta(days=1)
+    # start = last_year - dateutil.relativedelta.relativedelta(days=1)
+    date_list = [last_day,last_last_day,last_month,last_quarter,last_year]
+    # pull the data
+    
+    
+    # collect a new dataframe for return calculation
+    price_cal_df= pd.DataFrame([])
+    for d in date_list:
+        price_cal_df = pd.concat([price_cal_df,check_empty(tickerlist,d)])
+        
+    # price_cal_df = price_cal_df.interpolate()
+    # Change column name
+    price_cal_df = add_column_name(price_cal_df)
+    return price_cal_df  
+    
 def add_column_name(dataframe):
     l = []
     for i in dataframe.columns:
         l.append(ticker_dict[i])
     dataframe.columns = l
-    return dataframe
+    return dataframe    
+    
+def get_return(df):
+    return_df = pd.DataFrame(np.zeros([5,9]),index=['T','DTD','MTD','QTD','YTD'],columns=df.columns)
+    return_df.iloc[0,:] = round(100*(df.iloc[0,:]-df.iloc[0,:])/df.iloc[0,:],2)
+    return_df.iloc[1,:] = round(100*(df.iloc[0,:]-df.iloc[1,:])/df.iloc[1,:],2)
+    return_df.iloc[2,:] = round(100*(df.iloc[0,:]-df.iloc[2,:])/df.iloc[2,:],2)
+    return_df.iloc[3,:] = round(100*(df.iloc[0,:]-df.iloc[3,:])/df.iloc[3,:],2)
+    return_df.iloc[4,:] = round(100*(df.iloc[0,:]-df.iloc[4,:])/df.iloc[4,:],2)
+    return return_df
+    
+    
+def check_empty(tickerlist,date):
+    i = 1
+    price = wb.DataReader(tickerlist,'yahoo',date,date)['Adj Close']
+    while price.isnull().values.any():
+        target = price.columns[price.isnull().values[0]]
+        for i in target:
+            j=1
+            while price[i].isnull().values[0]:
+                price[i] = wb.DataReader(i,'yahoo',date-dateutil.relativedelta.relativedelta(days=j),date-dateutil.relativedelta.relativedelta(days=j))['Adj Close'].values[0]
+                j=j+1
+
+    return price
+    
+    
+    
+def get_currency_price():
+    # get all datetime
+    last_day = datetime.strftime(datetime.today()-dateutil.relativedelta.relativedelta(days=1),'%Y-%m-%d')
+    last_last_day = datetime.strftime(datetime.today()-dateutil.relativedelta.relativedelta(days=2),'%Y-%m-%d')
+    last_month = datetime.strftime(datetime.today().replace(day=1)-dateutil.relativedelta.relativedelta(days=1),'%Y-%m-%d')
+    q = math.ceil(datetime.today().month/3)-1
+    last_quarter = datetime.strftime(datetime.today().replace(month=q*3+1,day=1)-dateutil.relativedelta.relativedelta(days=1),'%Y-%m-%d')
+    last_year = datetime.strftime(datetime.today().replace(month=1,day=1)-dateutil.relativedelta.relativedelta(days=1),'%Y-%m-%d')
+    date_list = [last_day,last_last_day,last_month,last_quarter,last_year]
+
+    # Pull the data and do return calculation
+    currency_df = pd.DataFrame([])
+    for i in range(len(date_list)):
+        with urllib.request.urlopen('http://api.fixer.io/%s?base=USD' %date_list[i]) as f:
+            currency_dict = ast.literal_eval(f.read().decode('utf-8'))
+            currency_df = pd.concat([currency_df,pd.DataFrame.from_dict(currency_dict['rates'],'index')], axis=1)
+    currency_df.columns = ['Last_Day','Last_Last_Day','Last_Month','Last_Quarter','Last_Year']
+    currency_df['dtd'] = round((currency_df['Last_Day']-currency_df['Last_Last_Day'])/currency_df['Last_Last_Day'],4)
+    currency_df['mtd'] = round((currency_df['Last_Day']-currency_df['Last_Month'])/currency_df['Last_Month'],4)
+    currency_df['qtd'] = round((currency_df['Last_Day']-currency_df['Last_Quarter'])/currency_df['Last_Quarter'],4)
+    currency_df['ytd'] = round((currency_df['Last_Day']-currency_df['Last_Year'])/currency_df['Last_Year'],4)
+    
+    return currency_df
+    
+    
+    
+currency_df = get_currency_price() 
+
+
        
 if __name__ == '__main__':
     equity_index_list = ['^GSPC','^N225','^SSEC','^FTSE','^HSI','^BVSP','^AORD','^GDAXI','^BSESN']
@@ -76,52 +143,29 @@ if __name__ == '__main__':
          
 
     ###### Equity Index Return ######
-    equity_index_dtd,equity_index_mtd,equity_index_qtd,equity_index_ytd = get_return(equity_index_list)
-    
-    equity_data_dtd = equity_index_dtd.ix[-1].values
-    equity_data_mtd = equity_index_mtd.ix[-1].values
-    equity_data_qtd = equity_index_qtd.ix[-1].values
-    equity_data_ytd = equity_index_ytd.ix[-1].values
-
-    equity_str_dtd = ["%.2f" % x for x in 100*equity_data_dtd]
-    equity_str_mtd = ["%.2f" % x for x in 100*equity_data_mtd]
-    equity_str_qtd = ["%.2f" % x for x in 100*equity_data_qtd]
-    equity_str_ytd = ["%.2f" % x for x in 100*equity_data_ytd]
-
+    print('It starts')
+    zzz = get_price(equity_index_list)
+    print('It ends')
+    zzz_df = get_return(zzz)
+    zzz_str =  zzz_df.applymap(str)
 
     ###### Currency ######     
-    current = 'latest'
-    last_day = datetime.strftime(datetime.today()-dateutil.relativedelta.relativedelta(days=1),'%Y-%m-%d')
-    last_month = datetime.strftime(datetime.today()-dateutil.relativedelta.relativedelta(months=1),'%Y-%m-%d')
-    last_quarter = datetime.strftime(datetime.today()-dateutil.relativedelta.relativedelta(months=3),'%Y-%m-%d')
-    last_year = datetime.strftime(datetime.today()-dateutil.relativedelta.relativedelta(months=12),'%Y-%m-%d')
-    date_list = [current,last_day,last_month,last_quarter,last_year]
-    
-    currency_df = pd.DataFrame([])
-    for i in range(len(date_list)):
-        with urllib.request.urlopen('http://api.fixer.io/%s?base=USD' %date_list[i]) as f:
-            currency_dict = ast.literal_eval(f.read().decode('utf-8'))
-            currency_df = pd.concat([currency_df,pd.DataFrame.from_dict(currency_dict['rates'],'index')], axis=1)
-    currency_df.columns = ['Current','Last_Day','Last_Month','Last_Quarter','Last_Year']
-    currency_df['dtd'] = round((currency_df['Current']-currency_df['Last_Day'])/currency_df['Last_Day'],4)
-    currency_df['mtd'] = round((currency_df['Current']-currency_df['Last_Month'])/currency_df['Last_Month'],4)
-    currency_df['qtd'] = round((currency_df['Current']-currency_df['Last_Quarter'])/currency_df['Last_Quarter'],4)
-    currency_df['ytd'] = round((currency_df['Current']-currency_df['Last_Year'])/currency_df['Last_Year'],4)
-
+    currency_df = get_currency_price() 
         
     ###### Concat the data ######      
     a=[]
-    for i,j,k,l,m in zip(equity_index_dtd.columns,equity_str_dtd,equity_str_mtd,equity_str_qtd,equity_str_ytd):
-        a.append(i+': '+j+'%'+'<br>'+'MTD/QTD/YTD'+'<br>'+k+'%/'+l+'%/'+m+'%')
-    a[0] = a[0]+'<br>'+'USD/AUD: '+str(100*currency_df.loc['AUD','dtd'])+'%'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['AUD','mtd'])+'%/'+str(100*currency_df.loc['AUD','qtd'])+'%/'+str(100*currency_df.loc['AUD','ytd'])+'%'
-    a[1] = a[1]+'<br>'+'USD/INR: '+str(100*currency_df.loc['INR','dtd'])+'%'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['INR','mtd'])+'%/'+str(100*currency_df.loc['INR','qtd'])+'%/'+str(100*currency_df.loc['INR','ytd'])+'%'
-    a[2] = a[2]+'<br>'+'USD/BRL: '+str(100*currency_df.loc['BRL','dtd'])+'%'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['BRL','mtd'])+'%/'+str(100*currency_df.loc['BRL','qtd'])+'%/'+str(100*currency_df.loc['BRL','ytd'])+'%'
-    a[3] = a[3]+'<br>'+'USD/GBP: '+str(100*currency_df.loc['GBP','dtd'])+'%'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['GBP','mtd'])+'%/'+str(100*currency_df.loc['GBP','qtd'])+'%/'+str(100*currency_df.loc['GBP','ytd'])+'%'
-    a[4] = a[4]+'<br>'+'USD/EUR: '+str(100*currency_df.loc['EUR','dtd'])+'%'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['EUR','mtd'])+'%/'+str(100*currency_df.loc['EUR','qtd'])+'%/'+str(100*currency_df.loc['EUR','ytd'])+'%'
-    a[6] = a[6]+'<br>'+'USD/HKD: '+str(100*currency_df.loc['HKD','dtd'])+'%'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['HKD','mtd'])+'%/'+str(100*currency_df.loc['HKD','qtd'])+'%/'+str(100*currency_df.loc['HKD','ytd'])+'%'
-    a[7] = a[7]+'<br>'+'USD/JPY: '+str(100*currency_df.loc['JPY','dtd'])+'%'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['JPY','mtd'])+'%/'+str(100*currency_df.loc['JPY','qtd'])+'%/'+str(100*currency_df.loc['JPY','ytd'])+'%'
-    a[8] = a[8]+'<br>'+'USD/CNY: '+str(100*currency_df.loc['CNY','dtd'])+'%'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['CNY','mtd'])+'%/'+str(100*currency_df.loc['CNY','qtd'])+'%/'+str(100*currency_df.loc['CNY','ytd'])+'%'
+    for i,p,j,k,l,m in zip(zzz.columns,zzz.iloc[0,:],zzz_str.ix['DTD'],zzz_str.ix['MTD'],zzz_str.ix['QTD'],zzz_str.ix['YTD']):
+        a.append(i+': '+str(round(p,2))+'('+j+'%)'+'<br>'+'MTD/QTD/YTD'+'<br>'+k+'%/'+l+'%/'+m+'%')
+    a[0] = a[0]+'<br>'+'AUD/USD: '+str(round(1/currency_df.loc['AUD','Last_Day'],2))+'('+str(-100*currency_df.loc['AUD','dtd'])+'%)'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(-100*currency_df.loc['AUD','mtd'])+'%/'+str(-100*currency_df.loc['AUD','qtd'])+'%/'+str(-100*currency_df.loc['AUD','ytd'])+'%'
+    a[1] = a[1]+'<br>'+'USD/INR: '+str(round(currency_df.loc['INR','Last_Day'],2))+'('+str(100*currency_df.loc['INR','dtd'])+'%)'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['INR','mtd'])+'%/'+str(100*currency_df.loc['INR','qtd'])+'%/'+str(100*currency_df.loc['INR','ytd'])+'%'
+    a[2] = a[2]+'<br>'+'USD/BRL: '+str(round(currency_df.loc['BRL','Last_Day'],2))+'('+str(100*currency_df.loc['BRL','dtd'])+'%)'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['BRL','mtd'])+'%/'+str(100*currency_df.loc['BRL','qtd'])+'%/'+str(100*currency_df.loc['BRL','ytd'])+'%'
+    a[3] = a[3]+'<br>'+'GBP/USD: '+str(round(1/currency_df.loc['GBP','Last_Day'],2))+'('+str(-100*currency_df.loc['GBP','dtd'])+'%)'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(-100*currency_df.loc['GBP','mtd'])+'%/'+str(-100*currency_df.loc['GBP','qtd'])+'%/'+str(-100*currency_df.loc['GBP','ytd'])+'%'
+    a[4] = a[4]+'<br>'+'EUR/USD: '+str(round(1/currency_df.loc['EUR','Last_Day'],2))+'('+str(-100*currency_df.loc['EUR','dtd'])+'%)'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(-100*currency_df.loc['EUR','mtd'])+'%/'+str(-100*currency_df.loc['EUR','qtd'])+'%/'+str(-100*currency_df.loc['EUR','ytd'])+'%'
+    a[6] = a[6]+'<br>'+'USD/HKD: '+str(round(currency_df.loc['HKD','Last_Day'],2))+'('+str(100*currency_df.loc['HKD','dtd'])+'%)'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['HKD','mtd'])+'%/'+str(100*currency_df.loc['HKD','qtd'])+'%/'+str(100*currency_df.loc['HKD','ytd'])+'%'
+    a[7] = a[7]+'<br>'+'USD/JPY: '+str(round(currency_df.loc['JPY','Last_Day'],2))+'('+str(100*currency_df.loc['JPY','dtd'])+'%)'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['JPY','mtd'])+'%/'+str(100*currency_df.loc['JPY','qtd'])+'%/'+str(100*currency_df.loc['JPY','ytd'])+'%'
+    a[8] = a[8]+'<br>'+'USD/CNY: '+str(round(currency_df.loc['CNY','Last_Day'],2))+'('+str(100*currency_df.loc['CNY','dtd'])+'%)'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['CNY','mtd'])+'%/'+str(100*currency_df.loc['CNY','qtd'])+'%/'+str(100*currency_df.loc['CNY','ytd'])+'%'
     
+
     py.sign_in('fzn0728', '1enskD2UuiVkZbqcMZ5K')
     '''
     Equity_Return = {
