@@ -33,18 +33,6 @@ import string
 
 
     
-'''
-    last_year = datetime.today().replace(month=1,day=1)-dateutil.relativedelta.relativedelta(days=1)
-    price.columns[price.isnull().values[0]]
-    price = wb.DataReader(equity_index_list,'yahoo',last_year,last_year)['Adj Close']
-
-    price = wb.DataReader(equity_index_list,'yahoo',last_year-dateutil.relativedelta.relativedelta(days=2),last_year-dateutil.relativedelta.relativedelta(days=2))['Adj Close']
-'''
-
-
-
-
-    
 def get_price(tickerlist):
     # get all datetime
     # end = datetime.today()-dateutil.relativedelta.relativedelta(days=1)
@@ -125,9 +113,6 @@ def get_currency_price():
     
     return currency_df
     
-    
-    
-currency_df = get_currency_price() 
 
 
        
@@ -167,24 +152,7 @@ if __name__ == '__main__':
     
 
     py.sign_in('fzn0728', '1enskD2UuiVkZbqcMZ5K')
-    '''
-    Equity_Return = {
-      "hoverinfo": "text+name", 
-      "lat": [-33.8688, 19.0760, -23.5505, 51.5074, 52.5200, 40.7128, 22.3964, 35.6895, 39.9042, 47.3769],
-      "lon": [151.2093, 72.8777, -46.6333, -0.1278, 13.4050, -74.0059, 114.1095, 139.6917, 116.4074, 8.5417],
-      "marker":{
-          "color":"rgb(255, 70, 70)",
-          "size":["15","15","15","15","15","15","15","15","15","15"],
-          "opacity":[0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5]
-                },
-      "text":['ALL_ORDINARIES:<br>0.35%','S&P_BSE_SENSEX:<br>-0.05%','IBOVESPA:<br>1.20%','FTSE_100:<br>-0.12%','DAX:<br>-0.38%',\
-      'S&P500:<br>0.77%','HANG_SENG_INDEX:<br>2.05%<br>USD/HKD:<br>7.7548','Nikki_225:<br>1.65%','SSE_Composite:<br>0.22%','ESTX50:<br>0.03%'],
-      "name":'Equity Index',
-      "mode": "markers", 
-      "type": "scattergeo", 
-      "uid": "2f55b6"
-    }
-    '''
+
     label_color = "rgb(0, 215, 0)"
 
     Australia = {
