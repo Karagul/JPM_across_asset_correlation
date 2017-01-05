@@ -33,7 +33,7 @@ import string
 
 
     
-def get_price(tickerlist):
+def equity_price_MTD_QTD_YTD(tickerlist):
     # get all datetime
     # end = datetime.today()-dateutil.relativedelta.relativedelta(days=1)
     last_day = datetime.today()-dateutil.relativedelta.relativedelta(days=1)
@@ -45,7 +45,6 @@ def get_price(tickerlist):
     # start = last_year - dateutil.relativedelta.relativedelta(days=1)
     date_list = [last_day,last_last_day,last_month,last_quarter,last_year]
     # pull the data
-    
     
     # collect a new dataframe for return calculation
     price_cal_df= pd.DataFrame([])
@@ -64,7 +63,7 @@ def add_column_name(dataframe):
     dataframe.columns = l
     return dataframe    
     
-def get_return(df):
+def equity_return_MTD_QTD_YTD(df):
     return_df = pd.DataFrame(np.zeros([5,9]),index=['T','DTD','MTD','QTD','YTD'],columns=df.columns)
     return_df.iloc[0,:] = round(100*(df.iloc[0,:]-df.iloc[0,:])/df.iloc[0,:],2)
     return_df.iloc[1,:] = round(100*(df.iloc[0,:]-df.iloc[1,:])/df.iloc[1,:],2)
@@ -76,20 +75,53 @@ def get_return(df):
     
 def check_empty(tickerlist,date):
     i = 1
-    price = wb.DataReader(tickerlist,'yahoo',date,date)['Adj Close']
-    while price.isnull().values.any():
-        target = price.columns[price.isnull().values[0]]
-        for i in target:
-            j=1
-            while price[i].isnull().values[0]:
-                price[i] = wb.DataReader(i,'yahoo',date-dateutil.relativedelta.relativedelta(days=j),date-dateutil.relativedelta.relativedelta(days=j))['Adj Close'].values[0]
-                j=j+1
-
+    price = wb.DataReader(tickerlist,'yahoo',date,date)['Adj Close']    
+    while price.isnull().values.any() or price.empty:
+        if price.empty:
+            print('Go empty table one')
+            target = price.columns
+            for i in target:
+                print('Start %s'%i)
+                j=0
+                while price[i].empty:
+                    try:
+                        j=j+1
+                        print('Try j is %d'%j)
+                        print('The i is %s'%i)
+                        price.loc[0,i] = wb.DataReader(i,'yahoo',date-dateutil.relativedelta.relativedelta(days=j),\
+                                    date-dateutil.relativedelta.relativedelta(days=j))['Adj Close'].values[0]
+                    except:
+                        price.loc[0,i] = None                  
+        else:
+            print('Go isnull one')
+            target = price.columns[price.isnull().values[0]]
+            for i in target:
+                print('Start %s'%i)
+                j=0
+                while price[i].isnull().values[0]:
+                    try:
+                        j=j+1
+                        price[i] = wb.DataReader(i,'yahoo',date-dateutil.relativedelta.relativedelta(days=j),\
+                                    date-dateutil.relativedelta.relativedelta(days=j))['Adj Close'].values[0]
+                    except:
+                        price[i]= None      
+    price.index = [date]
+    price = price.convert_objects(convert_numeric=True)
     return price
     
     
     
-def get_currency_price():
+    # wb.DataReader('^AORD','yahoo',date_list[2]-dateutil.relativedelta.relativedelta(days=j),\
+                  # date_list[2]-dateutil.relativedelta.relativedelta(days=j))['Adj Close'].values[0]
+                  
+    
+    # price = wb.DataReader(globe_equity_index_list,'yahoo',date_list[2],date_list[2])['Adj Close']  
+    # check_empty(globe_equity_index_list,date_list[2])
+    # wb.DataReader('N225','yahoo',date_list[0],date_list[0])['Adj Close']
+    
+    
+    
+def currency_price_MTD_QTD_YTD():
     # get all datetime
     last_day = datetime.strftime(datetime.today()-dateutil.relativedelta.relativedelta(days=1),'%Y-%m-%d')
     last_last_day = datetime.strftime(datetime.today()-dateutil.relativedelta.relativedelta(days=2),'%Y-%m-%d')
@@ -117,7 +149,7 @@ def get_currency_price():
 
        
 if __name__ == '__main__':
-    equity_index_list = ['^GSPC','^N225','^SSEC','^FTSE','^HSI','^BVSP','^AORD','^GDAXI','^BSESN']
+    globe_equity_index_list = ['^GSPC','^N225','^SSEC','^FTSE','^HSI','^BVSP','^AORD','^GDAXI','^BSESN']
     currency_list = ['FXY','FXB','FXE','FXA','FXCH']
     
     ticker_dict = {'FXY':'JPY/USD','FXB':'GBP/USD','FXE':'EUR/USD','FXA':'AUD/USD','FXCH':'CHY/USD','BZF':'BRL/USD',
@@ -129,13 +161,13 @@ if __name__ == '__main__':
 
     ###### Equity Index Return ######
     print('It starts')
-    zzz = get_price(equity_index_list)
+    zzz = equity_price_MTD_QTD_YTD(globe_equity_index_list)
     print('It ends')
-    zzz_df = get_return(zzz)
+    zzz_df = equity_return_MTD_QTD_YTD(zzz)
     zzz_str =  zzz_df.applymap(str)
 
     ###### Currency ######     
-    currency_df = get_currency_price() 
+    currency_df = currency_price_MTD_QTD_YTD() 
         
     ###### Concat the data ######      
     a=[]
