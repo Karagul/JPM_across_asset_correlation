@@ -145,14 +145,20 @@ def check_empty(tickerlist,date):
     return price
     
 def equity_price_MTD_QTD_YTD(tickerlist):
+    last_day = datetime.today()-dateutil.relativedelta.relativedelta(days=1)
+    last_last_day = pd.date_range(end=last_day, periods=2, freq='B')[0].to_datetime()
+    last_month = pd.date_range(end=last_day, periods=1, freq='BM')[0].to_datetime()
+    last_quarter = pd.date_range(end=last_day, periods=1, freq='BQ')[0].to_datetime()
+    last_year = pd.date_range(end=last_day, periods=1, freq='BA')[0].to_datetime()
+    
     # get all datetime
     # end = datetime.today()-dateutil.relativedelta.relativedelta(days=1)
-    last_day = datetime.today()-dateutil.relativedelta.relativedelta(days=1)
-    last_last_day = datetime.today()-dateutil.relativedelta.relativedelta(days=2)
-    last_month = datetime.today().replace(day=1)-dateutil.relativedelta.relativedelta(days=1)
-    q = math.ceil(datetime.today().month/3)-1
-    last_quarter = datetime.today().replace(month=q*3+1,day=1)-dateutil.relativedelta.relativedelta(days=1)
-    last_year = datetime.today().replace(month=1,day=1)-dateutil.relativedelta.relativedelta(days=1)
+    # last_day = datetime.today()-dateutil.relativedelta.relativedelta(days=1)
+    # last_last_day = datetime.today()-dateutil.relativedelta.relativedelta(days=2)
+    # last_month = datetime.today().replace(day=1)-dateutil.relativedelta.relativedelta(days=1)
+    # q = math.ceil(datetime.today().month/3)-1
+    # last_quarter = datetime.today().replace(month=q*3+1,day=1)-dateutil.relativedelta.relativedelta(days=1)
+    # last_year = datetime.today().replace(month=1,day=1)-dateutil.relativedelta.relativedelta(days=1)
     # start = last_year - dateutil.relativedelta.relativedelta(days=1)
     date_list = [last_day,last_last_day,last_month,last_quarter,last_year]
     # pull the data
@@ -233,7 +239,7 @@ if __name__ == '__main__':
     currency = get_return(currency_list)    
     currency = add_column_name(currency)
     ###### Currency ######
-    commodity_etf = get_return(commodity_etf_list)
+    commodity_etf = get_return(commodity_etf_list).iloc[:-2,:]
     commodity_etf = add_column_name(commodity_etf)
     ###### Equity(SP500) Sector ######
     equity_sector = get_return(equity_sector_list)
@@ -264,7 +270,8 @@ if __name__ == '__main__':
     a[6] = a[6]+'<br>'+'USD/HKD: '+str(round(currency_df.loc['HKD','Last_Day'],2))+'('+str(100*currency_df.loc['HKD','dtd'])+'%)'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['HKD','mtd'])+'%/'+str(100*currency_df.loc['HKD','qtd'])+'%/'+str(100*currency_df.loc['HKD','ytd'])+'%'
     a[7] = a[7]+'<br>'+'USD/JPY: '+str(round(currency_df.loc['JPY','Last_Day'],2))+'('+str(100*currency_df.loc['JPY','dtd'])+'%)'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['JPY','mtd'])+'%/'+str(100*currency_df.loc['JPY','qtd'])+'%/'+str(100*currency_df.loc['JPY','ytd'])+'%'
     a[8] = a[8]+'<br>'+'USD/CNY: '+str(round(currency_df.loc['CNY','Last_Day'],2))+'('+str(100*currency_df.loc['CNY','dtd'])+'%)'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['CNY','mtd'])+'%/'+str(100*currency_df.loc['CNY','qtd'])+'%/'+str(100*currency_df.loc['CNY','ytd'])+'%'
-    
+    swiss = 'USD/CHF: '+str(round(currency_df.loc['CHF','Last_Day'],2))+'('+str(100*currency_df.loc['CHF','dtd'])+'%)'+'<br>'+'MTD/QTD/YTD'+'<br>'+str(100*currency_df.loc['CHF','mtd'])+'%/'+str(100*currency_df.loc['CHF','qtd'])+'%/'+str(100*currency_df.loc['CHF','ytd'])+'%'
+    a.append(swiss)
 
     # Plotly
     color1 = 'b'
@@ -1106,20 +1113,34 @@ if __name__ == '__main__':
     }
     Shanghai = {
       "hoverinfo": "text+name", 
-      "lat": [39.9042],
-      "lon": [116.4074],
+      "lat": [31.2304],
+      "lon": [121.4737],
       "marker":{
           "color":label_color,
           "size":"15",
           "opacity":0.5
                 },
       "text":a[8],
-      "name":'Hong Kong',
+      "name":'Shanghai',
       "mode": "markers", 
       "type": "scattergeo", 
       "uid": "2f55b6"
     }
-
+    Switzerland = {
+      "hoverinfo": "text+name", 
+      "lat": [47.3769],
+      "lon": [8.5417],
+      "marker":{
+          "color":label_color,
+          "size":"15",
+          "opacity":0.5
+                },
+      "text":a[9],
+      "name":'Switzerland',
+      "mode": "markers", 
+      "type": "scattergeo", 
+      "uid": "2f55b6"
+    }
     
     '''
     trace1 = {
@@ -1132,11 +1153,11 @@ if __name__ == '__main__':
     '''
     
     Country_index = {
-      "z": ['7','8','6','5','4','1','2','3'],
-      "text": ['Australia','India','Brazil','United Kingdom','Germany','United States of America','China','Japan'],
+      "z": ['7','8','6','5','4','1','2','3','9'],
+      "text": ['Australia','India','Brazil','United Kingdom','Germany','United States of America','China','Japan','Switzerland'],
       "colorscale": [[0.0, "rgb(255,0,0)"], [0.2, "rgb(255,255,0)"], [0.4, "rgb(128,255,0)"],\
                       [0.6, "rgb(0,255,64)"],[0.8, "rgb(0,255,255)"], [1.0, "rgb(0,128,192)"]], 
-      "locations": ["AUS","IND","BRA","GBR","DEU","USA","CHN","JPN"], 
+      "locations": ["AUS","IND","BRA","GBR","DEU","USA","CHN","JPN","CHE"], 
       "type": "choropleth", 
       "uid": "b73666", 
       "showscale": False,
@@ -1147,7 +1168,7 @@ if __name__ == '__main__':
     
     
     
-    data = Data([Australia, India, Brazil, UK, Germany, US, Hong_Kong, Japan, Shanghai, Country_index])
+    data = Data([Australia, India, Brazil, UK, Germany, US, Hong_Kong, Japan, Shanghai, Switzerland, Country_index])
     layout = {
       "autosize": True, 
       "geo": {
@@ -1186,7 +1207,7 @@ if __name__ == '__main__':
         "l": 100
       }, 
       "showlegend": True, 
-      "title": "Global Index and Currency Performance", 
+      "title": "Global Index Performance", 
       "width": 500
     }
     fig_16 = Figure(data=data, layout=layout)
