@@ -278,7 +278,7 @@ if __name__ == '__main__':
     color2 = 'b'
     label_color = "rgb(0, 215, 0)"
     
-    # py.sign_in('fzn0728', '1enskD2UuiVkZbqcMZ5K')
+    py.sign_in('fzn0728', '1enskD2UuiVkZbqcMZ5K')
        
     ### Figure 1 Developed Equity Market Cummulative return
     cum_equity_index = (1+equity_index).cumprod()-1
@@ -287,32 +287,32 @@ if __name__ == '__main__':
     trace1 = go.Scatter(
         x=cum_DM_equity_index.index,
         y=100*cum_DM_equity_index['ALL_ORDINARIES'],
-        name='ALL_ORDINARIES'
+        name='ALL_ORDINARIES(Australia)'
     )
     trace2 = go.Scatter(
         x=cum_DM_equity_index.index,
         y=100*cum_DM_equity_index['FTSE_100'],
-        name='FTSE_100'
+        name='FTSE_100(UK)'
     )
     trace3 = go.Scatter(
         x=cum_DM_equity_index.index,
         y=100*cum_DM_equity_index['DAX'],
-        name='DAX'
+        name='DAX(Germany)'
     )
     trace4 = go.Scatter(
         x=cum_DM_equity_index.index,
         y=100*cum_DM_equity_index['S&P500'],
-        name='S&P500'
+        name='S&P500(USA)'
     )
     trace5 = go.Scatter(
         x=cum_DM_equity_index.index,
         y=100*cum_DM_equity_index['Nikki_225'],
-        name='Nikki_225'
+        name='Nikki_225(Japan)'
     )
     trace6 = go.Scatter(
         x=cum_DM_equity_index.index,
         y=100*cum_DM_equity_index['ESTX50'],
-        name='ESTX50'
+        name='ESTX50(EU)'
     )
 
     data = [trace1,trace2,trace3,trace4,trace5,trace6]
@@ -342,25 +342,25 @@ if __name__ == '__main__':
     trace1 = go.Scatter(
         x=cum_EM_equity_index.index,
         y=100*cum_EM_equity_index['IBOVESPA'],
-        name='IBOVESPA'
+        name='IBOVESPA(Brazil)'
     )
     trace2 = go.Scatter(
         x=cum_EM_equity_index.index,
         y=100*cum_EM_equity_index['S&P_BSE_SENSEX'],
-        name='P_BSE_SENSEX'
+        name='P_BSE_SENSEX(India)'
     )
     trace3 = go.Scatter(
         x=cum_EM_equity_index.index,
         y=100*cum_EM_equity_index['HANG_SENG_INDEX'],
-        name='HANG_SENG_INDEX'
+        name='HANG_SENG_INDEX(HK)'
     )
     trace4 = go.Scatter(
         x=cum_EM_equity_index.index,
         y=100*cum_EM_equity_index['SSE_Composite'],
-        name='S&SSE_Composite'
+        name='S&SSE_Composite(China)'
     )
 
-    data = [trace1,trace2,trace3,trace4,trace5,trace6]
+    data = [trace1,trace2,trace3,trace4]
     layout = go.Layout(
         title='Cumulative Return of Emerging Market Equity Indices',
         yaxis=dict(

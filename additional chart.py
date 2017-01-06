@@ -45,11 +45,12 @@ if __name__ == '__main__':
     ### MTUM and QUAL Data ###
     mq = wb.DataReader(['MTUM','QUAL'],'yahoo',start,datetime.today())['Close']
     mq_return = (mq-mq.shift(1))/mq.shift(1)+1
-    first_index_m = mq_return.ix[:,'MTUM'].first_valid_index()-dateutil.relativedelta.relativedelta(days=1)
+    # first_index_m = mq_return.ix[:,'MTUM'].first_valid_index()-dateutil.relativedelta.relativedelta(days=1)
     first_index_q = mq_return.ix[:,'QUAL'].first_valid_index()-dateutil.relativedelta.relativedelta(days=1)
     # force the first day return to be one
-    mq_return.ix[first_index_m,'MTUM'] = 1
+    mq_return.ix[first_index_q,'MTUM'] = 1
     mq_return.ix[first_index_q,'QUAL'] = 1
+    mq_return = mq_return.loc[first_index_q:]
     cum_mp_return = mq_return.cumprod()-1
     
     # Calendar Return and Bar Chart
