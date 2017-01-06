@@ -1182,7 +1182,7 @@ if __name__ == '__main__':
         }, 
         "lonaxis": {
           "gridcolor": "rgb(102, 102, 102)", 
-          "gridwidth": 0.5, 
+          "gridwidth": 0.5,
           "showgrid": True
         }, 
         "oceancolor": "rgb(214, 207, 209)", 
