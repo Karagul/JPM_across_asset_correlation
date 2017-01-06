@@ -57,32 +57,33 @@ if __name__ == '__main__':
     calendar_mq.index=calendar_mq.index.year
     # calendar_mq.plot(kind='bar')
     
+    py.sign_in('fzn0728', '1enskD2UuiVkZbqcMZ5K')
     ### Figure 1 Cumulative Return of Fama French Factors
     trace1 = go.Scatter(
                   x=cum_ff.index,
                   y=100*cum_ff['Mkt-RF'],
-                  name='Mkt-RF'
+                  name='Market Minus Risk Free'
     )
     
     trace2 = go.Scatter(
                   x=cum_ff.index,
                   y=100*cum_ff['SMB'],
-                  name='SMB'
+                  name='Small Minus Big'
     )
     trace3 = go.Scatter(
                   x=cum_ff.index,
                   y=100*cum_ff['HML'],
-                  name='HML'
+                  name='High Minus Low'
     )
     trace4 = go.Scatter(
                   x=cum_ff.index,
                   y=100*cum_ff['RMW'],
-                  name='RMW'
+                  name='Robust Minus Weak'
     )
     trace5 = go.Scatter(
                   x=cum_ff.index,
                   y=100*cum_ff['CMA'],
-                  name='CMA'
+                  name='Conservative Minus Aggressive'
     )
     
     data = [trace1,trace2,trace3,trace4,trace5]
@@ -99,37 +100,37 @@ if __name__ == '__main__':
     py.plot(fig_1, filename='Figure 1 Cumulative Return of Fama French Factors')   
     
     
-    ### Figure 2 Last 10 Year Calendar Return of Fama French Factors
+    ### Figure 2 Last 10 Years Calendar Return of Fama French Factors
     trace1 = go.Bar(
-                  x=calendar_ff.index[-9:],
-                  y=100*calendar_ff['Mkt-RF'],
-                  name='Mkt-RF'
+                  x=calendar_ff.index[-10:],
+                  y=100*calendar_ff.ix['2007':,'Mkt-RF'],
+                  name='Market Minus Risk Free'
     )
     
     trace2 = go.Bar(
-                  x=calendar_ff.index[-9:],
-                  y=100*calendar_ff['SMB'],
-                  name='SMB'
+                  x=calendar_ff.index[-10:],
+                  y=100*calendar_ff.ix['2007':,'SMB'],
+                  name='Small Minus Big'
     )
     trace3 = go.Bar(
-                  x=calendar_ff.index[-9:],
-                  y=100*calendar_ff['HML'],
-                  name='HML'
+                  x=calendar_ff.index[-10:],
+                  y=100*calendar_ff.ix['2007':,'HML'],
+                  name='High Minus Low'
     )
     trace4 = go.Bar(
-                  x=calendar_ff.index[-9:],
-                  y=100*calendar_ff['RMW'],
-                  name='RMW'
+                  x=calendar_ff.index[-10:],
+                  y=100*calendar_ff.ix['2007':,'RMW'],
+                  name='Robust Minus Weak'
     )
     trace5 = go.Bar(
-                  x=calendar_ff.index[-9:],
-                  y=100*calendar_ff['CMA'],
-                  name='CMA'
+                  x=calendar_ff.index[-10:],
+                  y=100*calendar_ff.ix['2007':,'CMA'],
+                  name='Conservative Minus Aggressive'
     )
-    
+
     data = [trace1,trace2,trace3,trace4,trace5]
     layout = go.Layout(
-    title='Last 10 Year Calendar Return of Fama French Factors',
+    title='Last 10 Years Calendar Return of Fama French Factors',
     barmode='group',
     # xaxis=dict(tickangle=-45),
     yaxis=dict(
@@ -138,20 +139,20 @@ if __name__ == '__main__':
     )
     
     fig_2 = go.Figure(data=data, layout=layout)
-    py.plot(fig_2, filename='Figure 2 Last 10 Year Calendar Return of Fama French Factors')
+    py.plot(fig_2, filename='Figure 2 Last 10 Years Calendar Return of Fama French Factors')
     
     
     ### Figure 3 Cumulative Return of Russell 1000 Growth and Russell 1000 Value
     trace1 = go.Scatter(
                   x=cum_r_return.index,
                   y=100*cum_r_return['^RLG'],
-                  name='^RLG'
+                  name='Russell 1000 Growth'
     )
     
     trace2 = go.Scatter(
                   x=cum_r_return.index,
                   y=100*cum_r_return['^RLV'],
-                  name='^RLV'
+                  name='Russell 1000 Value'
     )
 
     
@@ -169,23 +170,23 @@ if __name__ == '__main__':
     py.plot(fig_3, filename='Figure 3 Cumulative Return of Russell 1000 Growth and Russell 1000 Value')   
     
     
-    ### Figure 4 Last 10 Year Calendar Return of Russell 1000 Growth and Russell 1000 Value
+    ### Figure 4 Last 10 Years Calendar Return of Russell 1000 Growth and Russell 1000 Value
     trace1 = go.Bar(
-                  x=calendar_r.index[-9:],
-                  y=100*calendar_r['^RLG'],
-                  name='^RLG'
+                  x=calendar_r.index[-10:],
+                  y=100*calendar_r.ix['2008':,'^RLG'],
+                  name='Russell 1000 Growth'
     )
     
     trace2 = go.Bar(
-                  x=calendar_r.index[-9:],
-                  y=100*calendar_r['^RLV'],
-                  name='^RLV'
+                  x=calendar_r.index[-10:],
+                  y=100*calendar_r.ix['2008'::,'^RLV'],
+                  name='Russell 1000 Value'
     )
 
     
     data = [trace1,trace2]
     layout = go.Layout(
-    title='Last 10 Year Calendar Return of Russell 1000 Growth and Russell 1000 Value',
+    title='Last 10 Years Calendar Return of Russell 1000 Growth and Russell 1000 Value',
     barmode='group',
     # xaxis=dict(tickangle=-45),
     yaxis=dict(
@@ -194,19 +195,19 @@ if __name__ == '__main__':
     )
     
     fig_4 = go.Figure(data=data, layout=layout)
-    py.plot(fig_4, filename='Figure 4 Last 10 Year Calendar Return of Russell 1000 Growth and Russell 1000 Value')
+    py.plot(fig_4, filename='Figure 4 Last 10 Years Calendar Return of Russell 1000 Growth and Russell 1000 Value')
 
     ### Figure 5 Cumulative Return of iShares MSCI Momentum Factor and iShares MSCI Quality Factor
     trace1 = go.Scatter(
                   x=cum_mp_return.index,
                   y=100*cum_mp_return['MTUM'],
-                  name='MTUM'
+                  name='iShares MSCI Momentum Factor'
     )
     
     trace2 = go.Scatter(
                   x=cum_mp_return.index,
                   y=100*cum_mp_return['QUAL'],
-                  name='QUAL'
+                  name='iShares MSCI Quality Factor'
     )
 
     
@@ -225,15 +226,15 @@ if __name__ == '__main__':
     
     ### Figure 6 Calendar Return of iShares MSCI Momentum Factor and iShares MSCI Quality Factor
     trace1 = go.Bar(
-                  x=calendar_mq.index[-9:],
+                  x=calendar_mq.index,
                   y=100*calendar_mq['MTUM'],
-                  name='MTUM'
+                  name='iShares MSCI Momentum Factor'
     )
     
     trace2 = go.Bar(
-                  x=calendar_mq.index[-9:],
+                  x=calendar_mq.index,
                   y=100*calendar_mq['QUAL'],
-                  name='QUAL'
+                  name='iShares MSCI Quality Factor'
     )
 
     
