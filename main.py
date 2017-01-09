@@ -500,7 +500,7 @@ if __name__ == '__main__':
     
     ### Figure 6 Cumulative Return of Major Currencies
     
-    cum_currency = (1+currency).cumprod()-1
+    cum_currency = (1+currency_etf).cumprod()-1
     
     trace1 = go.Scatter(
         x=cum_currency.index,
@@ -550,7 +550,7 @@ if __name__ == '__main__':
 
 
     ### Figure 7 Correlation of Currencies with S&P 500
-    currency_sp = pd.concat([currency,equity_index['S&P500']],axis=1)
+    currency_sp = pd.concat([currency_etf,equity_index['S&P500']],axis=1)
     # deal with nan data
     currency_sp = currency_sp.interpolate()
     currency_sp_avg_corr = currency_sp.rolling(window=260).corr(currency_sp['S&P500']).ix[260:,[\
