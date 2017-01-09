@@ -17,12 +17,12 @@ import dateutil.relativedelta
 import urllib.request
 import ast
 import math
-
+from plotly.graph_objs import *
 
 
 def get_return(tickerlist):
     start = datetime(2000,1,1)
-    end = datetime(2016,12,19)
+    end = datetime.today()
     p = wb.DataReader(tickerlist,'yahoo',start,end)
     price_df = p['Adj Close']
     price_df = price_df.interpolate()
@@ -218,8 +218,8 @@ if __name__ == '__main__':
     equity_index = add_column_name(equity_index)
     equity_index_price = add_column_name(equity_index_price)
     ###### Currency ######
-    currency = get_return(currency_list)    
-    currency = add_column_name(currency)
+    currency_etf = get_return(currency_list)    
+    currency_etf = add_column_name(currency_etf)
     ###### Currency ######
     commodity_etf = get_return(commodity_etf_list).iloc[:-2,:]
     commodity_etf = add_column_name(commodity_etf)
