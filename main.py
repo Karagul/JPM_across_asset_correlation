@@ -10,32 +10,14 @@ import pandas_datareader.data as wb
 from fredapi import Fred
 import pandas as pd
 import numpy as np
-from itertools import groupby
-from urllib.request import urlopen
-import json
-import matplotlib.pyplot as plt
 import plotly.plotly as py
 import plotly.graph_objs as go
 from datetime import timedelta
-
-import pandas_datareader.data as wb
-from fredapi import Fred
-import pandas as pd
-import numpy as np
-from itertools import groupby
-from urllib.request import urlopen
-import json
-import matplotlib.pyplot as plt
-import plotly.plotly as py
-import plotly.graph_objs as go
-from datetime import datetime, timedelta
-import plotly.plotly as py
-from plotly.graph_objs import *
 import dateutil.relativedelta
 import urllib.request
 import ast
 import math
-import string
+
 
 
 def get_return(tickerlist):
